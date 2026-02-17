@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>RivrQuant.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.*" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.*" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.*" />
+    <PackageReference Include="MathNet.Numerics" Version="5.0.*" />
+    <PackageReference Include="Anthropic" Version="0.*" />
+    <PackageReference Include="Alpaca.Markets" Version="7.*" />
+    <PackageReference Include="SendGrid" Version="9.*" />
+    <PackageReference Include="Twilio" Version="7.*" />
+    <PackageReference Include="Polly" Version="8.*" />
+    <PackageReference Include="Polly.Extensions.Http" Version="3.*" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.0.*" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.*" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.*" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RivrQuant.Domain\RivrQuant.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
