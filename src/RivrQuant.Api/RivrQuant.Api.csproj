@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\RivrQuant.Domain\RivrQuant.Domain.csproj" />
+    <ProjectReference Include="..\RivrQuant.Infrastructure\RivrQuant.Infrastructure.csproj" />
+    <ProjectReference Include="..\RivrQuant.Application\RivrQuant.Application.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>RivrQuant.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hangfire" Version="1.8.*" />
+    <PackageReference Include="Hangfire.InMemory" Version="1.0.*" />
+    <PackageReference Include="Hangfire.SQLite" Version="0.4.*" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.*" />
+  </ItemGroup>
+
+</Project>
