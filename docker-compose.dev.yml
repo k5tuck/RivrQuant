@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: ./src
+      dockerfile: RivrQuant.Api/Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DATABASE_PROVIDER=Sqlite
+      - DATABASE_CONNECTION=Data Source=rivrquant.db
+      - QC_USER_ID=${QC_USER_ID:-demo}
+      - QC_API_TOKEN=${QC_API_TOKEN:-demo}
+      - QC_PROJECT_IDS=${QC_PROJECT_IDS:-12345}
+      - QC_POLL_INTERVAL_SECONDS=300
+      - ALPACA_API_KEY=${ALPACA_API_KEY:-demo}
+      - ALPACA_API_SECRET=${ALPACA_API_SECRET:-demo}
+      - ALPACA_PAPER=true
+      - BYBIT_API_KEY=${BYBIT_API_KEY:-demo}
+      - BYBIT_API_SECRET=${BYBIT_API_SECRET:-demo}
+      - BYBIT_USE_TESTNET=true
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-demo}
+      - ANTHROPIC_MODEL=claude-sonnet-4-20250514
+      - ANTHROPIC_MAX_TOKENS=4096
+      - SIGNALR_ENABLE=true
+    volumes:
+      - api_data:/app/data
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
+      - NEXT_PUBLIC_SIGNALR_URL=http://localhost:5000/hubs/trading
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  api_data:
