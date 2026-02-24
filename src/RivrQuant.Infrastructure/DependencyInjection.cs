@@ -10,6 +10,7 @@ using RivrQuant.Infrastructure.Brokers.Alpaca;
 using RivrQuant.Infrastructure.Brokers.Bybit;
 using RivrQuant.Infrastructure.Persistence;
 using RivrQuant.Infrastructure.QuantConnect;
+using RivrQuant.Infrastructure.Stubs;
 
 /// <summary>Service registration for the Infrastructure layer.</summary>
 public static class DependencyInjection
@@ -83,6 +84,7 @@ public static class DependencyInjection
             opts.Recipients = recipients.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
         });
 
+        services.AddSingleton<QcResultParser>();
         services.AddHttpClient<QcApiClient>();
         services.AddHttpClient<ClaudeAiAnalyzer>();
 
@@ -94,6 +96,8 @@ public static class DependencyInjection
 
         services.AddScoped<IBacktestProvider, QcApiClient>();
         services.AddScoped<IAiAnalyzer, ClaudeAiAnalyzer>();
+        services.AddScoped<IPortfolioTracker, StubPortfolioTracker>();
+        services.AddScoped<IAlertService, StubAlertService>();
         services.AddScoped<QcBacktestPoller>();
 
         services.AddScoped<AlpacaBrokerClient>();

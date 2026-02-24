@@ -29,9 +29,9 @@ public sealed class AnalysisService
     /// <summary>Lists all analysis reports.</summary>
     public async Task<IReadOnlyList<AnalysisReportDto>> GetAllAsync(CancellationToken ct)
     {
-        var reports = await _db.AiAnalysisReports
+        var reports = (await _db.AiAnalysisReports.ToListAsync(ct))
             .OrderByDescending(r => r.CreatedAt)
-            .ToListAsync(ct);
+            .ToList();
 
         var backtestIds = reports.Select(r => r.BacktestResultId).Distinct().ToList();
         var backtests = await _db.BacktestResults

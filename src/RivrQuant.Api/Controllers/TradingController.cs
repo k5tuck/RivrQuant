@@ -18,7 +18,7 @@ public sealed class TradingController : ControllerBase
     [HttpGet("positions")]
     public async Task<IActionResult> GetPositions(CancellationToken ct)
     {
-        var positions = await _service.GetPositionsAsync(ct);
+        var positions = await _service.GetAllPositionsAsync(ct);
         return Ok(positions);
     }
 
@@ -26,7 +26,7 @@ public sealed class TradingController : ControllerBase
     [HttpGet("orders")]
     public async Task<IActionResult> GetOrders(CancellationToken ct)
     {
-        var orders = await _service.GetOrdersAsync(ct);
+        var orders = await _service.GetOrderHistoryAsync(null, null, ct);
         return Ok(orders);
     }
 
@@ -42,7 +42,8 @@ public sealed class TradingController : ControllerBase
     [HttpDelete("orders/{id}")]
     public async Task<IActionResult> CancelOrder(string id, CancellationToken ct)
     {
-        await _service.CancelOrderAsync(id, ct);
+        if (!Guid.TryParse(id, out var orderId)) return BadRequest("Invalid order ID");
+        await _service.CancelOrderAsync(orderId, ct);
         return NoContent();
     }
 

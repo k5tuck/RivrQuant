@@ -1,6 +1,6 @@
 namespace RivrQuant.Infrastructure.Brokers.Alpaca;
 
-using Alpaca.Markets;
+using global::Alpaca.Markets;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RivrQuant.Domain.Models.Trading;

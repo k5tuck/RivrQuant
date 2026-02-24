@@ -19,30 +19,30 @@ public sealed class QcConfiguration
     /// The QuantConnect user identifier (numeric string).
     /// Can be set via the <c>QC_USER_ID</c> environment variable.
     /// </summary>
-    public string UserId { get; init; } = string.Empty;
+    public string UserId { get; set; } = string.Empty;
 
     /// <summary>
     /// The QuantConnect API token used for authentication.
     /// Can be set via the <c>QC_API_TOKEN</c> environment variable.
     /// </summary>
-    public string ApiToken { get; init; } = string.Empty;
+    public string ApiToken { get; set; } = string.Empty;
 
     /// <summary>
     /// The list of QuantConnect project identifiers to monitor for new backtests.
     /// </summary>
-    public IReadOnlyList<string> ProjectIds { get; init; } = Array.Empty<string>();
+    public IReadOnlyList<string> ProjectIds { get; set; } = Array.Empty<string>();
 
     /// <summary>
     /// The interval, in seconds, between polling cycles for new backtest results.
     /// Defaults to 300 seconds (5 minutes).
     /// </summary>
-    public int PollIntervalSeconds { get; init; } = 300;
+    public int PollIntervalSeconds { get; set; } = 300;
 
     /// <summary>
     /// The base URL for the QuantConnect REST API.
     /// Defaults to <c>https://www.quantconnect.com</c>.
     /// </summary>
-    public string BaseUrl { get; init; } = "https://www.quantconnect.com";
+    public string BaseUrl { get; set; } = "https://www.quantconnect.com";
 
     /// <summary>
     /// Validates that all required configuration values are present.

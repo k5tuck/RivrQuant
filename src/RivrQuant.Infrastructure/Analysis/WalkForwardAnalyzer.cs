@@ -69,7 +69,7 @@ public sealed class WalkForwardAnalyzer
             var result = new WalkForwardResult
             {
                 BacktestResultId = backtestResultId,
-                WindowNumber = w + 1,
+                WindowIndex = w,
                 InSampleStart = inSample.First().Date,
                 InSampleEnd = inSample.Last().Date,
                 OutOfSampleStart = outOfSample.First().Date,
@@ -82,8 +82,8 @@ public sealed class WalkForwardAnalyzer
 
             results.Add(result);
             _logger.LogDebug(
-                "Window {Window}: IS Sharpe={InSampleSharpe:F3}, OOS Sharpe={OutSampleSharpe:F3}, Decay={Decay:F1}%",
-                w + 1, result.InSampleSharpe, result.OutOfSampleSharpe, result.SharpeDecay * 100);
+                "Window {Window}: IS Sharpe={InSampleSharpe:F3}, OOS Sharpe={OutSampleSharpe:F3}, Efficiency={Efficiency:F1}%",
+                w + 1, result.InSampleSharpe, result.OutOfSampleSharpe, result.Efficiency * 100);
         }
 
         _logger.LogInformation("Walk-forward analysis complete. {WindowCount} windows analyzed.", results.Count);

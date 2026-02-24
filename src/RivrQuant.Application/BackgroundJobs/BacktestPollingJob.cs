@@ -30,7 +30,7 @@ public sealed class BacktestPollingJob
             {
                 try
                 {
-                    await _backtestService.AnalyzeBacktestAsync(bt.Id, CancellationToken.None);
+                    await _backtestService.AnalyzeAsync(bt.Id, CancellationToken.None);
                     _logger.LogInformation("Analysis complete for backtest {BacktestId}", bt.Id);
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)

@@ -33,22 +33,3 @@ public sealed record OrderDto(
     string Broker,
     DateTimeOffset CreatedAt);
 
-/// <summary>
-/// Request payload for placing a new trading order through the application layer.
-/// The <see cref="AssetClass"/> field determines which broker receives the order.
-/// </summary>
-/// <param name="Symbol">Ticker symbol of the instrument to trade.</param>
-/// <param name="Side">Direction of the order (Buy or Sell).</param>
-/// <param name="Type">Order type (Market, Limit, StopLoss, StopLimit, TrailingStop).</param>
-/// <param name="Quantity">Number of shares or contracts to trade.</param>
-/// <param name="LimitPrice">Limit price for Limit and StopLimit orders.</param>
-/// <param name="StopPrice">Stop/trigger price for StopLoss and StopLimit orders.</param>
-/// <param name="AssetClass">Asset class determining broker routing (Stock or Crypto).</param>
-public sealed record PlaceOrderDto(
-    string Symbol,
-    string Side,
-    string Type,
-    decimal Quantity,
-    decimal? LimitPrice,
-    decimal? StopPrice,
-    string AssetClass);

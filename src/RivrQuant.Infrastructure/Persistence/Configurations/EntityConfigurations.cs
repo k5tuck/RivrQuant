@@ -257,7 +257,7 @@ public sealed class WalkForwardResultConfiguration : IEntityTypeConfiguration<Wa
     public void Configure(EntityTypeBuilder<WalkForwardResult> builder)
     {
         builder.HasKey(e => e.Id);
-        builder.Ignore(e => e.SharpeDecay);
+        builder.Ignore(e => e.Efficiency);
         builder.HasIndex(e => e.BacktestResultId);
     }
 }

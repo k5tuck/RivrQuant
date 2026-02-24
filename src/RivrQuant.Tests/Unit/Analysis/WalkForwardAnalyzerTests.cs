@@ -47,7 +47,7 @@ public class WalkForwardAnalyzerTests
 
         var results = _analyzer.RunWalkForwardAnalysis(dailyReturns, 5, 0.7, backtestId);
 
-        results.Select(r => r.WindowNumber).Should().BeEquivalentTo(new[] { 1, 2, 3, 4, 5 });
+        results.Select(r => r.WindowIndex).Should().BeEquivalentTo(new[] { 0, 1, 2, 3, 4 });
     }
 
     [Fact]
@@ -90,8 +90,8 @@ public class WalkForwardAnalyzerTests
             // SharpeDecay is a computed property: 1 - (OOS / IS)
             if (r.InSampleSharpe != 0)
             {
-                var expectedDecay = 1 - (r.OutOfSampleSharpe / r.InSampleSharpe);
-                r.SharpeDecay.Should().BeApproximately(expectedDecay, 0.001);
+                var expectedEfficiency = r.OutOfSampleSharpe / r.InSampleSharpe;
+                r.Efficiency.Should().BeApproximately(expectedEfficiency, 0.001);
             }
         });
     }

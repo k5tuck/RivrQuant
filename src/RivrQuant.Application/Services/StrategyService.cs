@@ -24,10 +24,11 @@ public sealed class StrategyService
     /// <summary>Lists all strategies with their parameters.</summary>
     public async Task<IReadOnlyList<Strategy>> GetAllAsync(CancellationToken ct)
     {
-        return await _db.Strategies
+        return (await _db.Strategies
             .Include(s => s.Parameters)
+            .ToListAsync(ct))
             .OrderByDescending(s => s.CreatedAt)
-            .ToListAsync(ct);
+            .ToList();
     }
 
     /// <summary>Retrieves a strategy by identifier.</summary>

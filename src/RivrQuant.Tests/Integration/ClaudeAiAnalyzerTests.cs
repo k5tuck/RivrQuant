@@ -51,7 +51,8 @@ public class ClaudeAiAnalyzerTests
     [Fact]
     public void ClaudePromptBuilder_BuildSystemPrompt_ReturnsNonEmptyString()
     {
-        var prompt = ClaudePromptBuilder.BuildSystemPrompt();
+        var builder = new ClaudePromptBuilder();
+        var prompt = builder.BuildSystemPrompt();
 
         prompt.Should().NotBeNullOrWhiteSpace();
         prompt.Should().Contain("quantitative");
@@ -60,18 +61,21 @@ public class ClaudeAiAnalyzerTests
     [Fact]
     public void ClaudePromptBuilder_BuildAnalysisPrompt_IncludesStrategyName()
     {
-        var prompt = ClaudePromptBuilder.BuildAnalysisPrompt(
-            strategyName: "MomentumAlpha",
-            strategyDescription: "A momentum strategy",
-            sharpeRatio: 1.5,
-            sortinoRatio: 2.0,
-            maxDrawdown: 0.15,
-            totalReturn: 0.25,
-            winRate: 0.55,
-            profitFactor: 1.8,
-            totalTrades: 150,
-            avgWin: 500m,
-            avgLoss: 300m);
+        var promptBuilder = new ClaudePromptBuilder();
+        var backtest = new Domain.Models.Backtests.BacktestResult
+        {
+            StrategyName = "MomentumAlpha",
+            StrategyDescription = "A momentum strategy"
+        };
+        var metrics = new Domain.Models.Backtests.BacktestMetrics
+        {
+            SharpeRatio = 1.5,
+            MaxDrawdown = 0.15,
+            WinRate = 0.55,
+            ProfitFactor = 1.8,
+            TotalTrades = 150
+        };
+        var prompt = promptBuilder.BuildAnalysisPrompt(backtest, metrics, new List<Domain.Models.Analysis.RegimeClassification>());
 
         prompt.Should().Contain("MomentumAlpha");
         prompt.Should().Contain("1.5");
@@ -92,17 +96,19 @@ public class ClaudeAiAnalyzerTests
         var logger = new Mock<ILogger<ClaudeAiAnalyzer>>();
         var httpClient = new HttpClient();
 
-        var analyzer = new ClaudeAiAnalyzer(config, httpClient, logger.Object);
+        var promptBuilder = new ClaudePromptBuilder();
+        var analyzer = new ClaudeAiAnalyzer(httpClient, config, promptBuilder, logger.Object);
 
         // This would call the real API — only run with valid credentials
         var report = await analyzer.AnalyzeBacktestAsync(
-            Guid.NewGuid(),
-            "TestStrategy",
-            "Simple momentum strategy",
+            new Domain.Models.Backtests.BacktestResult
+            {
+                StrategyName = "TestStrategy",
+                StrategyDescription = "Simple momentum strategy"
+            },
             new Domain.Models.Backtests.BacktestMetrics
             {
                 SharpeRatio = 1.5,
-                SortinoRatio = 2.0,
                 MaxDrawdown = 0.15,
                 WinRate = 0.55,
                 ProfitFactor = 1.8,

@@ -1,6 +1,6 @@
 namespace RivrQuant.Infrastructure.Brokers.Alpaca;
 
-using Alpaca.Markets;
+using global::Alpaca.Markets;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RivrQuant.Domain.Enums;
@@ -185,7 +185,7 @@ public sealed class AlpacaBrokerClient : IBrokerClient
         {
             var request = new ListOrdersRequest
             {
-                OrderStatusFilter = Alpaca.Markets.OrderStatusFilter.All,
+                OrderStatusFilter = global::Alpaca.Markets.OrderStatusFilter.All,
                 RollUpNestedOrders = true
             }.WithInterval(new Interval<DateTime>(from.UtcDateTime, to.UtcDateTime));
 

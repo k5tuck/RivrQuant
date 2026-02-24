@@ -17,7 +17,7 @@ public sealed class BacktestController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> List(CancellationToken ct)
     {
-        var backtests = await _service.ListBacktestsAsync(ct);
+        var backtests = await _service.GetAllAsync(ct);
         return Ok(backtests);
     }
 
@@ -25,7 +25,7 @@ public sealed class BacktestController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id, CancellationToken ct)
     {
-        var backtest = await _service.GetBacktestAsync(id, ct);
+        var backtest = await _service.GetByIdAsync(id, ct);
         if (backtest is null) return NotFound();
         return Ok(backtest);
     }
@@ -34,7 +34,7 @@ public sealed class BacktestController : ControllerBase
     [HttpPost("{id:guid}/analyze")]
     public async Task<IActionResult> Analyze(Guid id, CancellationToken ct)
     {
-        var report = await _service.AnalyzeBacktestAsync(id, ct);
+        var report = await _service.AnalyzeAsync(id, ct);
         return Ok(report);
     }
 
@@ -42,7 +42,7 @@ public sealed class BacktestController : ControllerBase
     [HttpPost("compare")]
     public async Task<IActionResult> Compare([FromBody] Guid[] ids, CancellationToken ct)
     {
-        var comparison = await _service.CompareBacktestsAsync(ids, ct);
+        var comparison = await _service.CompareAsync(ids, ct);
         return Ok(comparison);
     }
 }

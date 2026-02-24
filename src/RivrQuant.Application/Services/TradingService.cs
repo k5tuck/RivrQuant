@@ -71,11 +71,12 @@ public sealed class TradingService
         var end = to ?? DateTimeOffset.UtcNow;
 
         // Fetch from database first (persisted orders)
-        var dbOrders = await _db.Orders
+        var dbOrders = (await _db.Orders
             .Include(o => o.Fills)
             .Where(o => o.CreatedAt >= start && o.CreatedAt <= end)
+            .ToListAsync(ct))
             .OrderByDescending(o => o.CreatedAt)
-            .ToListAsync(ct);
+            .ToList();
 
         if (dbOrders.Count > 0)
             return dbOrders;

@@ -103,11 +103,13 @@ public sealed class RegimeDetector
                     Regime = currentRegime,
                     StartDate = dailyReturns[startIdx].Date,
                     EndDate = dailyReturns[endIdx].Date,
-                    ReturnInRegime = returns.Length > 0 ? returns.Sum() : 0,
-                    SharpeInRegime = returns.Length > 1 ? _stats.CalculateSharpeRatio(returns, 0) : 0,
-                    MaxDrawdownInRegime = equities.Length > 0 ? _stats.CalculateMaxDrawdown(equities) : 0,
-                    TradeCountInRegime = 0,
-                    WinRateInRegime = 0
+                    DurationDays = endIdx - startIdx + 1,
+                    AnnualizedReturn = returns.Length > 0 ? returns.Sum() : 0,
+                    SharpeRatio = returns.Length > 1 ? _stats.CalculateSharpeRatio(returns, 0) : 0,
+                    MaxDrawdown = equities.Length > 0 ? _stats.CalculateMaxDrawdown(equities) : 0,
+                    Volatility = 0,
+                    TradeCount = 0,
+                    WinRate = 0
                 });
 
                 if (i < dayRegimes.Length)

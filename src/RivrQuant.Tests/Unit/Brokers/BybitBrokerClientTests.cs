@@ -83,32 +83,34 @@ public class BybitBrokerClientTests
     [Fact]
     public void BybitAuthenticator_SignsRequest_WithCorrectHeaders()
     {
-        var authenticator = new BybitAuthenticator("test-api-key", "test-api-secret", 5000);
+        var authenticator = new BybitAuthenticator("test-api-key", "test-api-secret");
 
-        var headers = new Dictionary<string, string>();
-        authenticator.SignRequest(headers, "");
+        var request = new HttpRequestMessage(HttpMethod.Get, "https://api.bybit.com/test");
+        authenticator.SignRequest(request, null, 5000);
 
-        headers.Should().ContainKey("X-BAPI-API-KEY");
-        headers.Should().ContainKey("X-BAPI-SIGN");
-        headers.Should().ContainKey("X-BAPI-TIMESTAMP");
-        headers.Should().ContainKey("X-BAPI-RECV-WINDOW");
-        headers["X-BAPI-API-KEY"].Should().Be("test-api-key");
+        request.Headers.Should().Contain(h => h.Key == "X-BAPI-API-KEY");
+        request.Headers.Should().Contain(h => h.Key == "X-BAPI-SIGN");
+        request.Headers.Should().Contain(h => h.Key == "X-BAPI-TIMESTAMP");
+        request.Headers.Should().Contain(h => h.Key == "X-BAPI-RECV-WINDOW");
+        request.Headers.GetValues("X-BAPI-API-KEY").First().Should().Be("test-api-key");
     }
 
     [Fact]
     public void BybitAuthenticator_ProducesConsistentSignatures()
     {
-        var authenticator = new BybitAuthenticator("test-key", "test-secret", 5000);
+        var authenticator = new BybitAuthenticator("test-key", "test-secret");
 
-        var headers1 = new Dictionary<string, string>();
-        var headers2 = new Dictionary<string, string>();
+        var request1 = new HttpRequestMessage(HttpMethod.Get, "https://api.bybit.com/test");
+        var request2 = new HttpRequestMessage(HttpMethod.Get, "https://api.bybit.com/test");
 
-        authenticator.SignRequest(headers1, "test-payload");
+        authenticator.SignRequest(request1, "test-payload", 5000);
         // Different timestamps will produce different signatures,
         // but the structure should be consistent
-        authenticator.SignRequest(headers2, "test-payload");
+        authenticator.SignRequest(request2, "test-payload", 5000);
 
-        headers1["X-BAPI-API-KEY"].Should().Be(headers2["X-BAPI-API-KEY"]);
-        headers1["X-BAPI-RECV-WINDOW"].Should().Be(headers2["X-BAPI-RECV-WINDOW"]);
+        request1.Headers.GetValues("X-BAPI-API-KEY").First().Should().Be(
+            request2.Headers.GetValues("X-BAPI-API-KEY").First());
+        request1.Headers.GetValues("X-BAPI-RECV-WINDOW").First().Should().Be(
+            request2.Headers.GetValues("X-BAPI-RECV-WINDOW").First());
     }
 }

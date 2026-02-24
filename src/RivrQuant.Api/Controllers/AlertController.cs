@@ -3,6 +3,7 @@ namespace RivrQuant.Api.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using RivrQuant.Application.DTOs;
 using RivrQuant.Application.Services;
+using RivrQuant.Domain.Models.Alerts;
 
 /// <summary>Alert rules and history endpoints.</summary>
 [ApiController]
@@ -26,7 +27,17 @@ public sealed class AlertController : ControllerBase
     [HttpPost("rules")]
     public async Task<IActionResult> CreateRule([FromBody] CreateAlertRuleDto dto, CancellationToken ct)
     {
-        var rule = await _service.CreateRuleAsync(dto, ct);
+        var alertRule = new AlertRule
+        {
+            Name = dto.Name,
+            ConditionType = dto.ConditionType,
+            Threshold = dto.Threshold,
+            ComparisonOperator = dto.ComparisonOperator,
+            SendEmail = dto.SendEmail,
+            SendSms = dto.SendSms,
+            CooldownPeriod = TimeSpan.FromMinutes(dto.CooldownMinutes)
+        };
+        var rule = await _service.CreateRuleAsync(alertRule, ct);
         return Ok(rule);
     }
 
@@ -50,7 +61,7 @@ public sealed class AlertController : ControllerBase
     [HttpGet("history")]
     public async Task<IActionResult> GetHistory(CancellationToken ct)
     {
-        var events = await _service.GetHistoryAsync(ct);
+        var events = await _service.GetHistoryAsync(null, null, ct);
         return Ok(events);
     }
 

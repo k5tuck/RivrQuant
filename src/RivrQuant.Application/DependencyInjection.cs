@@ -16,7 +16,6 @@ public static class DependencyInjection
         services.AddScoped<AnalysisService>();
         services.AddScoped<AlertAppService>();
         services.AddScoped<StrategyService>();
-        services.AddScoped<IAlertService, AlertAppService>();
         return services;
     }
 }

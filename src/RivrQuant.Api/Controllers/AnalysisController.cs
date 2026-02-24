@@ -17,7 +17,7 @@ public sealed class AnalysisController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> List(CancellationToken ct)
     {
-        var reports = await _service.ListReportsAsync(ct);
+        var reports = await _service.GetAllAsync(ct);
         return Ok(reports);
     }
 
@@ -25,7 +25,7 @@ public sealed class AnalysisController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id, CancellationToken ct)
     {
-        var report = await _service.GetReportAsync(id, ct);
+        var report = await _service.GetByIdAsync(id, ct);
         if (report is null) return NotFound();
         return Ok(report);
     }

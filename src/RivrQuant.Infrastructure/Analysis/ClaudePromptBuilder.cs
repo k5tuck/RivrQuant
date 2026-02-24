@@ -81,7 +81,7 @@ public sealed class ClaudePromptBuilder
             sb.AppendLine("|--------|--------|--------|--------|--------|--------|----------|");
             foreach (var regime in regimes)
             {
-                sb.AppendLine($"| {regime.Regime} | {regime.StartDate:yyyy-MM-dd} to {regime.EndDate:yyyy-MM-dd} | {regime.ReturnInRegime * 100:F2}% | {regime.SharpeInRegime:F3} | {regime.MaxDrawdownInRegime * 100:F2}% | {regime.TradeCountInRegime} | {regime.WinRateInRegime * 100:F1}% |");
+                sb.AppendLine($"| {regime.Regime} | {regime.StartDate:yyyy-MM-dd} to {regime.EndDate:yyyy-MM-dd} | {regime.AnnualizedReturn * 100:F2}% | {regime.SharpeRatio:F3} | {regime.MaxDrawdown * 100:F2}% | {regime.TradeCount} | {regime.WinRate * 100:F1}% |");
             }
             sb.AppendLine();
         }

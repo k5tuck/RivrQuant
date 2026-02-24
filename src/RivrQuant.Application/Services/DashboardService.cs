@@ -45,10 +45,10 @@ public sealed class DashboardService
 
         var positions = await _tradingService.GetAllPositionsAsync(ct);
 
-        var snapshots = await _db.PerformanceSnapshots
+        var snapshots = (await _db.PerformanceSnapshots.ToListAsync(ct))
             .OrderByDescending(s => s.Timestamp)
             .Take(100)
-            .ToListAsync(ct);
+            .ToList();
 
         var totalBacktests = await _db.BacktestResults.CountAsync(ct);
         var analyzedBacktests = await _db.BacktestResults.CountAsync(b => b.IsAnalyzed, ct);
@@ -84,9 +84,17 @@ public sealed class DashboardService
     /// <summary>Retrieves performance metrics only.</summary>
     public async Task<IReadOnlyList<PerformanceSnapshot>> GetMetricsAsync(CancellationToken ct)
     {
-        return await _db.PerformanceSnapshots
+        return (await _db.PerformanceSnapshots.ToListAsync(ct))
             .OrderByDescending(s => s.Timestamp)
             .Take(100)
-            .ToListAsync(ct);
+            .ToList();
+    }
+
+    /// <summary>Takes a portfolio snapshot and persists it.</summary>
+    public async Task TakeSnapshotAsync(CancellationToken ct)
+    {
+        var snapshot = await _portfolioTracker.TakeSnapshotAsync(ct);
+        _db.PerformanceSnapshots.Add(snapshot);
+        await _db.SaveChangesAsync(ct);
     }
 }

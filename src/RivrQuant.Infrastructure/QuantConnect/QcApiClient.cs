@@ -18,11 +18,11 @@ public sealed class QcApiClient : IBacktestProvider
     private readonly ILogger<QcApiClient> _logger;
 
     /// <summary>Initializes a new instance of <see cref="QcApiClient"/>.</summary>
-    public QcApiClient(HttpClient httpClient, IOptions<QcConfiguration> config, ILogger<QcApiClient> logger)
+    public QcApiClient(HttpClient httpClient, IOptions<QcConfiguration> config, QcResultParser parser, ILogger<QcApiClient> logger)
     {
         _httpClient = httpClient;
         _config = config.Value;
-        _parser = new QcResultParser();
+        _parser = parser;
         _logger = logger;
 
         var credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{_config.UserId}:{_config.ApiToken}"));
@@ -79,7 +79,7 @@ public sealed class QcApiClient : IBacktestProvider
             {
                 foreach (var bt in backtestsArray.EnumerateArray())
                 {
-                    results.Add(_parser.ParseBacktestSummary(bt, projectId));
+                    results.Add(_parser.ParseBacktestResult(bt, projectId));
                 }
             }
             _logger.LogInformation("Found {BacktestCount} backtests for project {ProjectId}", results.Count, projectId);

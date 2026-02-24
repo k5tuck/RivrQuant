@@ -78,8 +78,10 @@ public class QcApiClientTests
         var logger = new Mock<ILogger<QcApiClient>>();
         var httpClient = new HttpClient();
 
-        var client = new QcApiClient(config, httpClient, logger.Object);
-        var projects = await client.ListProjectsAsync(CancellationToken.None);
+        var parserLogger = new Mock<ILogger<QcResultParser>>();
+        var parser = new QcResultParser(parserLogger.Object);
+        var client = new QcApiClient(httpClient, config, parser, logger.Object);
+        var projects = await client.GetProjectIdsAsync(CancellationToken.None);
 
         projects.Should().NotBeNull();
     }
@@ -101,7 +103,9 @@ public class QcApiClientTests
         var logger = new Mock<ILogger<QcApiClient>>();
         var httpClient = new HttpClient();
 
-        var client = new QcApiClient(config, httpClient, logger.Object);
+        var parserLogger = new Mock<ILogger<QcResultParser>>();
+        var parser = new QcResultParser(parserLogger.Object);
+        var client = new QcApiClient(httpClient, config, parser, logger.Object);
         var backtests = await client.GetBacktestsForProjectAsync(projectIds[0], CancellationToken.None);
 
         backtests.Should().NotBeNull();

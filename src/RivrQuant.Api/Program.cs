@@ -1,5 +1,5 @@
 using Hangfire;
-using Hangfire.MemoryStorage;
+using Hangfire.InMemory;
 using Microsoft.EntityFrameworkCore;
 using RivrQuant.Api.Hubs;
 using RivrQuant.Api.Middleware;
@@ -22,7 +22,7 @@ builder.Services.AddApplication();
 
 builder.Services.AddSignalR();
 
-builder.Services.AddHangfire(config => config.UseMemoryStorage());
+builder.Services.AddHangfire(config => config.UseInMemoryStorage());
 builder.Services.AddHangfireServer();
 
 builder.Services.AddCors(options =>
@@ -36,8 +36,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddHealthChecks()
-    .AddDbContextCheck<RivrQuantDbContext>("database");
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 

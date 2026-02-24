@@ -17,7 +17,7 @@ public sealed class StrategyController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> List(CancellationToken ct)
     {
-        var strategies = await _service.ListAsync(ct);
+        var strategies = await _service.GetAllAsync(ct);
         return Ok(strategies);
     }
 
@@ -25,7 +25,7 @@ public sealed class StrategyController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id, CancellationToken ct)
     {
-        var strategy = await _service.GetAsync(id, ct);
+        var strategy = await _service.GetByIdAsync(id, ct);
         if (strategy is null) return NotFound();
         return Ok(strategy);
     }

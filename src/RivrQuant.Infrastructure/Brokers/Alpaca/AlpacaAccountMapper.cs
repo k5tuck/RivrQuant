@@ -1,6 +1,6 @@
 namespace RivrQuant.Infrastructure.Brokers.Alpaca;
 
-using Alpaca.Markets;
+using global::Alpaca.Markets;
 using RivrQuant.Domain.Enums;
 using DomainOrder = RivrQuant.Domain.Models.Trading.Order;
 using DomainPosition = RivrQuant.Domain.Models.Trading.Position;
@@ -14,13 +14,13 @@ public static class AlpacaAccountMapper
     {
         return new DomainPortfolio
         {
-            TotalEquity = (decimal)(account.Equity ?? 0),
-            CashBalance = (decimal)(account.TradableCash ?? 0),
-            BuyingPower = (decimal)(account.BuyingPower ?? 0),
+            TotalEquity = account.Equity ?? 0m,
+            CashBalance = account.TradableCash,
+            BuyingPower = account.BuyingPower ?? 0m,
             UnrealizedPnl = 0,
             RealizedPnlToday = 0,
-            DailyChangePercent = account.Equity.HasValue && account.LastEquity.HasValue && account.LastEquity.Value != 0
-                ? (decimal)((account.Equity.Value - account.LastEquity.Value) / account.LastEquity.Value * 100)
+            DailyChangePercent = account.LastEquity != 0
+                ? (account.Equity.GetValueOrDefault() - account.LastEquity) / account.LastEquity * 100
                 : 0,
             Broker = BrokerType.Alpaca
         };
@@ -32,12 +32,12 @@ public static class AlpacaAccountMapper
         return new DomainPosition
         {
             Symbol = position.Symbol,
-            Side = position.Side == PositionSide.Long ? OrderSide.Buy : OrderSide.Sell,
+            Side = position.Side == PositionSide.Long ? Domain.Enums.OrderSide.Buy : Domain.Enums.OrderSide.Sell,
             Quantity = Math.Abs(position.IntegerQuantity),
             AverageEntryPrice = position.AverageEntryPrice,
-            CurrentPrice = position.AssetCurrentPrice,
+            CurrentPrice = position.AssetCurrentPrice ?? 0,
             Broker = BrokerType.Alpaca,
-            AssetClass = AssetClass.Stock
+            AssetClass = Domain.Enums.AssetClass.Stock
         };
     }
 
@@ -55,54 +55,54 @@ public static class AlpacaAccountMapper
             Quantity = (decimal)(order.Quantity ?? 0),
             LimitPrice = order.LimitPrice.HasValue ? (decimal)order.LimitPrice.Value : null,
             StopPrice = order.StopPrice.HasValue ? (decimal)order.StopPrice.Value : null,
-            FilledQuantity = order.FilledQuantity.HasValue ? (decimal)order.FilledQuantity.Value : null,
+            FilledQuantity = order.FilledQuantity,
             FilledAveragePrice = order.AverageFillPrice.HasValue ? (decimal)order.AverageFillPrice.Value : null,
             Broker = BrokerType.Alpaca,
-            AssetClass = AssetClass.Stock,
+            AssetClass = Domain.Enums.AssetClass.Stock,
             CreatedAt = order.CreatedAtUtc ?? DateTimeOffset.UtcNow,
             FilledAt = order.FilledAtUtc
         };
     }
 
     /// <summary>Maps Alpaca order side to domain OrderSide.</summary>
-    public static OrderSide MapOrderSide(Alpaca.Markets.OrderSide side)
+    public static Domain.Enums.OrderSide MapOrderSide(global::Alpaca.Markets.OrderSide side)
     {
-        return side == Alpaca.Markets.OrderSide.Buy ? OrderSide.Buy : OrderSide.Sell;
+        return side == global::Alpaca.Markets.OrderSide.Buy ? Domain.Enums.OrderSide.Buy : Domain.Enums.OrderSide.Sell;
     }
 
     /// <summary>Maps domain OrderSide to Alpaca order side.</summary>
-    public static Alpaca.Markets.OrderSide ToAlpacaSide(OrderSide side)
+    public static global::Alpaca.Markets.OrderSide ToAlpacaSide(Domain.Enums.OrderSide side)
     {
-        return side == OrderSide.Buy ? Alpaca.Markets.OrderSide.Buy : Alpaca.Markets.OrderSide.Sell;
+        return side == Domain.Enums.OrderSide.Buy ? global::Alpaca.Markets.OrderSide.Buy : global::Alpaca.Markets.OrderSide.Sell;
     }
 
     /// <summary>Maps Alpaca order type to domain OrderType.</summary>
-    public static Domain.Enums.OrderType MapOrderType(Alpaca.Markets.OrderType type)
+    public static Domain.Enums.OrderType MapOrderType(global::Alpaca.Markets.OrderType type)
     {
         return type switch
         {
-            Alpaca.Markets.OrderType.Market => Domain.Enums.OrderType.Market,
-            Alpaca.Markets.OrderType.Limit => Domain.Enums.OrderType.Limit,
-            Alpaca.Markets.OrderType.Stop => Domain.Enums.OrderType.StopLoss,
-            Alpaca.Markets.OrderType.StopLimit => Domain.Enums.OrderType.StopLimit,
-            Alpaca.Markets.OrderType.TrailingStop => Domain.Enums.OrderType.TrailingStop,
+            global::Alpaca.Markets.OrderType.Market => Domain.Enums.OrderType.Market,
+            global::Alpaca.Markets.OrderType.Limit => Domain.Enums.OrderType.Limit,
+            global::Alpaca.Markets.OrderType.Stop => Domain.Enums.OrderType.StopLoss,
+            global::Alpaca.Markets.OrderType.StopLimit => Domain.Enums.OrderType.StopLimit,
+            global::Alpaca.Markets.OrderType.TrailingStop => Domain.Enums.OrderType.TrailingStop,
             _ => Domain.Enums.OrderType.Market
         };
     }
 
     /// <summary>Maps Alpaca order status to domain OrderStatus.</summary>
-    public static Domain.Enums.OrderStatus MapOrderStatus(Alpaca.Markets.OrderStatus status)
+    public static Domain.Enums.OrderStatus MapOrderStatus(global::Alpaca.Markets.OrderStatus status)
     {
         return status switch
         {
-            Alpaca.Markets.OrderStatus.New => Domain.Enums.OrderStatus.Pending,
-            Alpaca.Markets.OrderStatus.Accepted => Domain.Enums.OrderStatus.Pending,
-            Alpaca.Markets.OrderStatus.PendingNew => Domain.Enums.OrderStatus.Pending,
-            Alpaca.Markets.OrderStatus.PartiallyFilled => Domain.Enums.OrderStatus.PartiallyFilled,
-            Alpaca.Markets.OrderStatus.Filled => Domain.Enums.OrderStatus.Filled,
-            Alpaca.Markets.OrderStatus.Canceled => Domain.Enums.OrderStatus.Cancelled,
-            Alpaca.Markets.OrderStatus.Rejected => Domain.Enums.OrderStatus.Rejected,
-            Alpaca.Markets.OrderStatus.Expired => Domain.Enums.OrderStatus.Expired,
+            global::Alpaca.Markets.OrderStatus.New => Domain.Enums.OrderStatus.Pending,
+            global::Alpaca.Markets.OrderStatus.Accepted => Domain.Enums.OrderStatus.Pending,
+            global::Alpaca.Markets.OrderStatus.PendingNew => Domain.Enums.OrderStatus.Pending,
+            global::Alpaca.Markets.OrderStatus.PartiallyFilled => Domain.Enums.OrderStatus.PartiallyFilled,
+            global::Alpaca.Markets.OrderStatus.Filled => Domain.Enums.OrderStatus.Filled,
+            global::Alpaca.Markets.OrderStatus.Canceled => Domain.Enums.OrderStatus.Cancelled,
+            global::Alpaca.Markets.OrderStatus.Rejected => Domain.Enums.OrderStatus.Rejected,
+            global::Alpaca.Markets.OrderStatus.Expired => Domain.Enums.OrderStatus.Expired,
             _ => Domain.Enums.OrderStatus.Pending
         };
     }

@@ -39,11 +39,12 @@ public sealed class BacktestService
     /// <summary>Lists all backtest results as summaries.</summary>
     public async Task<IReadOnlyList<BacktestSummaryDto>> GetAllAsync(CancellationToken ct)
     {
-        var results = await _db.BacktestResults
+        var results = (await _db.BacktestResults
             .Include(b => b.Metrics)
             .Include(b => b.Trades)
+            .ToListAsync(ct))
             .OrderByDescending(b => b.CreatedAt)
-            .ToListAsync(ct);
+            .ToList();
 
         return results.Select(b => new BacktestSummaryDto
         {
@@ -150,11 +151,8 @@ public sealed class BacktestService
         }
 
         // Detect regimes
-        var dailyReturns = backtest.DailyReturns
-            .OrderBy(d => d.Date)
-            .Select(d => (double)d.DailyReturnPercent)
-            .ToList();
-        var regimes = _regimeDetector.DetectRegimes(dailyReturns, backtest.DailyReturns.ToList());
+        var regimes = _regimeDetector.DetectRegimes(
+            backtest.DailyReturns.OrderBy(d => d.Date).ToList(), backtestId);
 
         // Save regime classifications
         foreach (var regime in regimes)
