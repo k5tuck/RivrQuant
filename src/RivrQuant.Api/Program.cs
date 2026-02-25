@@ -1,5 +1,6 @@
 using Hangfire;
 using Hangfire.InMemory;
+using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using RivrQuant.Api.Hubs;
 using RivrQuant.Api.Middleware;
@@ -22,14 +23,24 @@ builder.Services.AddApplication();
 
 builder.Services.AddSignalR();
 
-builder.Services.AddHangfire(config => config.UseInMemoryStorage());
+var isProduction = builder.Environment.IsProduction();
+var hangfireConnectionString = builder.Configuration["DATABASE_CONNECTION"];
+builder.Services.AddHangfire(config =>
+{
+    if (isProduction && !string.IsNullOrEmpty(hangfireConnectionString))
+        config.UsePostgreSqlStorage(c => c.UseNpgsqlConnection(hangfireConnectionString));
+    else
+        config.UseInMemoryStorage();
+});
 builder.Services.AddHangfireServer();
 
+var allowedOrigins = builder.Configuration["CORS_ORIGINS"]?.Split(',')
+    ?? new[] { "http://localhost:3000", "http://localhost:3001" };
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://localhost:3001")
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -43,7 +54,10 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<RivrQuantDbContext>();
-    db.Database.EnsureCreated();
+    if (isProduction)
+        db.Database.Migrate();
+    else
+        db.Database.EnsureCreated();
 }
 
 if (app.Environment.IsDevelopment())
