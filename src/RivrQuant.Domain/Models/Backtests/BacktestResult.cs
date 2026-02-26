@@ -22,6 +22,13 @@ public class BacktestResult
     public string ProjectId { get; init; } = string.Empty;
 
     /// <summary>
+    /// Human-readable name of the QuantConnect project (algorithm / bot).
+    /// Populated from the QC projects API during polling; null for records
+    /// imported before this field was added.
+    /// </summary>
+    public string? ProjectName { get; set; }
+
+    /// <summary>
     /// Name of the strategy that was backtested.
     /// </summary>
     public string StrategyName { get; init; } = string.Empty;

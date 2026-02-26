@@ -11,6 +11,12 @@ public sealed record BacktestSummaryDto
     /// <summary>External backtest identifier from the provider.</summary>
     public string ExternalBacktestId { get; init; } = string.Empty;
 
+    /// <summary>QuantConnect project identifier (numeric string).</summary>
+    public string ProjectId { get; init; } = string.Empty;
+
+    /// <summary>Human-readable name of the QuantConnect project (algorithm/bot name).</summary>
+    public string? ProjectName { get; init; }
+
     /// <summary>Name of the strategy that was backtested.</summary>
     public string StrategyName { get; init; } = string.Empty;
 

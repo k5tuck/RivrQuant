@@ -36,6 +36,8 @@ export interface OrderDto {
 
 export interface BacktestSummaryDto {
   id: string;
+  projectId: string;
+  projectName?: string;
   strategyName: string;
   dateRun: string;
   sharpeRatio: number;
@@ -44,6 +46,16 @@ export interface BacktestSummaryDto {
   winRate: number;
   aiScore?: number;
   isAnalyzed: boolean;
+}
+
+export interface AlgorithmSummaryDto {
+  projectId: string;
+  projectName: string;
+  backtestCount: number;
+  analyzedCount: number;
+  bestSharpe?: number;
+  bestTotalReturn: number;
+  latestBacktest: string;
 }
 
 export interface BacktestDetailDto extends BacktestSummaryDto {

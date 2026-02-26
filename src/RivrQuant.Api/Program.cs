@@ -54,10 +54,11 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<RivrQuantDbContext>();
-    if (isProduction)
-        db.Database.Migrate();
-    else
-        db.Database.EnsureCreated();
+    // EnsureCreated creates the full schema from the current model on first run
+    // (safe for both SQLite dev and fresh PostgreSQL prod).
+    // Once EF migrations are scaffolded (dotnet ef migrations add Initial),
+    // switch this to db.Database.Migrate() so future schema changes apply automatically.
+    db.Database.EnsureCreated();
 }
 
 if (app.Environment.IsDevelopment())

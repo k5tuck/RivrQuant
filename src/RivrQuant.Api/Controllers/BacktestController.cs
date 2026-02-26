@@ -21,6 +21,17 @@ public sealed class BacktestController : ControllerBase
         return Ok(backtests);
     }
 
+    /// <summary>
+    /// Lists all QuantConnect projects as one summary per algorithm/bot,
+    /// aggregating stats across all backtest runs for each project.
+    /// </summary>
+    [HttpGet("projects")]
+    public async Task<IActionResult> Projects(CancellationToken ct)
+    {
+        var projects = await _service.GetProjectSummariesAsync(ct);
+        return Ok(projects);
+    }
+
     /// <summary>Gets a single backtest with full details.</summary>
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id, CancellationToken ct)

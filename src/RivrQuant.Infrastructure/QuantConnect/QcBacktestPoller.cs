@@ -36,12 +36,26 @@ public sealed class QcBacktestPoller
         var newBacktests = new List<BacktestResult>();
         _logger.LogInformation("Starting backtest poll cycle for {ProjectCount} projects", _config.ProjectIds.Count);
 
+        // Fetch project names once so every imported backtest is labelled with its algorithm name.
+        Dictionary<string, string> projectNames;
+        try
+        {
+            var projects = await _apiClient.GetProjectsAsync(ct);
+            projectNames = projects.ToDictionary(p => p.Id, p => p.Name);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "Could not fetch project names — backtests will use project ID as name.");
+            projectNames = new Dictionary<string, string>();
+        }
+
         foreach (var projectId in _config.ProjectIds)
         {
+            var projectName = projectNames.TryGetValue(projectId, out var name) ? name : projectId;
             try
             {
                 var backtests = await _apiClient.GetBacktestsForProjectAsync(projectId, ct);
-                _logger.LogDebug("Found {BacktestCount} backtests in project {ProjectId}", backtests.Count, projectId);
+                _logger.LogDebug("Found {BacktestCount} backtests in project {ProjectId} ({ProjectName})", backtests.Count, projectId, projectName);
 
                 foreach (var summary in backtests)
                 {
@@ -50,20 +64,29 @@ public sealed class QcBacktestPoller
 
                     if (exists)
                     {
+                        // Backfill ProjectName on existing records that were imported before this field existed.
+                        var existing = await _dbContext.BacktestResults
+                            .FirstOrDefaultAsync(b => b.ExternalBacktestId == summary.ExternalBacktestId && b.ProjectName == null, ct);
+                        if (existing is not null)
+                        {
+                            existing.ProjectName = projectName;
+                            await _dbContext.SaveChangesAsync(ct);
+                        }
                         continue;
                     }
 
-                    _logger.LogInformation("New backtest detected: {BacktestId} in project {ProjectId}", summary.ExternalBacktestId, projectId);
+                    _logger.LogInformation("New backtest detected: {BacktestId} in project {ProjectId} ({ProjectName})", summary.ExternalBacktestId, projectId, projectName);
 
                     try
                     {
                         var detail = await _apiClient.GetBacktestDetailAsync(projectId, summary.ExternalBacktestId, ct);
+                        detail.ProjectName = projectName;
                         _dbContext.BacktestResults.Add(detail);
                         await _dbContext.SaveChangesAsync(ct);
                         newBacktests.Add(detail);
                         _logger.LogInformation(
-                            "Persisted new backtest {BacktestId} ({StrategyName}) with {TradeCount} trades and {DailyReturnCount} daily returns",
-                            detail.ExternalBacktestId, detail.StrategyName, detail.Trades.Count, detail.DailyReturns.Count);
+                            "Persisted new backtest {BacktestId} ({ProjectName} / {StrategyName}) with {TradeCount} trades",
+                            detail.ExternalBacktestId, projectName, detail.StrategyName, detail.Trades.Count);
                     }
                     catch (Exception ex) when (ex is not OperationCanceledException)
                     {

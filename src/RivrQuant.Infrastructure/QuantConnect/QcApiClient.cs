@@ -31,7 +31,7 @@ public sealed class QcApiClient : IBacktestProvider
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<string>> GetProjectIdsAsync(CancellationToken ct)
+    public async Task<IReadOnlyList<(string Id, string Name)>> GetProjectsAsync(CancellationToken ct)
     {
         _logger.LogInformation("Fetching project list from QuantConnect");
         try
@@ -40,14 +40,18 @@ public sealed class QcApiClient : IBacktestProvider
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync(ct);
             var doc = JsonDocument.Parse(json);
-            var projects = new List<string>();
+            var projects = new List<(string Id, string Name)>();
             if (doc.RootElement.TryGetProperty("projects", out var projectsArray))
             {
                 foreach (var project in projectsArray.EnumerateArray())
                 {
                     if (project.TryGetProperty("projectId", out var id))
                     {
-                        projects.Add(id.GetInt64().ToString());
+                        var projectId = id.GetInt64().ToString();
+                        var projectName = project.TryGetProperty("name", out var nameEl)
+                            ? nameEl.GetString() ?? projectId
+                            : projectId;
+                        projects.Add((projectId, projectName));
                     }
                 }
             }
@@ -62,6 +66,13 @@ public sealed class QcApiClient : IBacktestProvider
                 ProjectId = "all"
             };
         }
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<string>> GetProjectIdsAsync(CancellationToken ct)
+    {
+        var projects = await GetProjectsAsync(ct);
+        return projects.Select(p => p.Id).ToList();
     }
 
     /// <inheritdoc />

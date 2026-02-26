@@ -1,6 +1,7 @@
 import type {
   DashboardDto, BacktestSummaryDto, BacktestDetailDto, PositionDto,
-  OrderDto, AnalysisReportDto, AlertRuleDto, AlertEventDto, StrategyDto, PortfolioDto
+  OrderDto, AnalysisReportDto, AlertRuleDto, AlertEventDto, StrategyDto, PortfolioDto,
+  AlgorithmSummaryDto
 } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -21,6 +22,7 @@ export const api = {
   },
   backtests: {
     list: () => fetchApi<BacktestSummaryDto[]>("/api/backtest"),
+    projects: () => fetchApi<AlgorithmSummaryDto[]>("/api/backtest/projects"),
     get: (id: string) => fetchApi<BacktestDetailDto>(`/api/backtest/${id}`),
     analyze: (id: string) => fetchApi<AnalysisReportDto>(`/api/backtest/${id}/analyze`, { method: "POST" }),
     compare: (ids: string[]) => fetchApi<unknown>("/api/backtest/compare", { method: "POST", body: JSON.stringify(ids) }),
