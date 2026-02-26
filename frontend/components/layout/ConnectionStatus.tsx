@@ -38,9 +38,9 @@ export default function ConnectionStatus() {
   }, []);
 
   const statusConfig = {
-    connected: { color: "bg-green-500", label: "SignalR Connected" },
-    reconnecting: { color: "bg-yellow-500 animate-pulse", label: "Reconnecting..." },
-    disconnected: { color: "bg-red-500", label: "Disconnected" },
+    connected: { color: "bg-profit", label: "SignalR Connected" },
+    reconnecting: { color: "bg-warning animate-pulse", label: "Reconnecting..." },
+    disconnected: { color: "bg-loss", label: "Disconnected" },
   };
 
   const config = statusConfig[state];

@@ -35,10 +35,10 @@ export default function BrokerStatusIndicator() {
     <div className="flex items-center gap-4">
       {brokers.map((b) => (
         <div key={b.name} className="flex items-center gap-2">
-          <span className={`h-2 w-2 rounded-full ${b.connected ? "bg-green-500" : "bg-red-500"}`} />
+          <span className={`h-2 w-2 rounded-full ${b.connected ? "bg-profit" : "bg-loss"}`} />
           <span className="text-xs text-[hsl(var(--muted-foreground))]">{b.name}</span>
           {b.latencyMs !== null && (
-            <span className={`text-xs ${b.latencyMs < 100 ? "text-green-500" : b.latencyMs < 500 ? "text-yellow-500" : "text-red-500"}`}>
+            <span className={`text-xs ${b.latencyMs < 100 ? "text-profit" : b.latencyMs < 500 ? "text-warning" : "text-loss"}`}>
               {b.latencyMs}ms
             </span>
           )}

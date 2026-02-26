@@ -17,11 +17,11 @@ export default function PortfolioSummaryCard({ portfolio }: PortfolioSummaryCard
         {formatCurrency(portfolio.totalEquity)}
       </p>
       <div className="mt-2 flex items-center gap-2">
-        <span className={`text-sm font-medium ${isPositive ? "text-green-500" : "text-red-500"}`}>
+        <span className={`text-sm font-medium ${isPositive ? "text-profit" : "text-loss"}`}>
           {isPositive ? "+" : ""}
           {formatCurrency(portfolio.dailyChange)}
         </span>
-        <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${isPositive ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"}`}>
+        <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${isPositive ? "bg-profit/10 text-profit" : "bg-loss/10 text-loss"}`}>
           {isPositive ? "+" : ""}
           {formatPercent(portfolio.dailyChangePercent)}
         </span>
@@ -37,7 +37,7 @@ export default function PortfolioSummaryCard({ portfolio }: PortfolioSummaryCard
         </div>
         <div>
           <p className="text-xs text-[hsl(var(--muted-foreground))]">Unrealized P&L</p>
-          <p className={`text-sm font-medium ${portfolio.unrealizedPnl >= 0 ? "text-green-500" : "text-red-500"}`}>
+          <p className={`text-sm font-medium ${portfolio.unrealizedPnl >= 0 ? "text-profit" : "text-loss"}`}>
             {portfolio.unrealizedPnl >= 0 ? "+" : ""}{formatCurrency(portfolio.unrealizedPnl)}
           </p>
         </div>

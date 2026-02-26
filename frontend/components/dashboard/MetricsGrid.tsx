@@ -9,11 +9,11 @@ interface MetricsGridProps {
 
 export default function MetricsGrid({ metrics }: MetricsGridProps) {
   const items = [
-    { label: "Live Sharpe (30d)", value: formatNumber(metrics.liveSharpe30d), color: metrics.liveSharpe30d >= 1 ? "text-green-500" : metrics.liveSharpe30d >= 0 ? "text-yellow-500" : "text-red-500" },
-    { label: "Win Rate (30)", value: formatPercent(metrics.winRate30), color: metrics.winRate30 >= 0.5 ? "text-green-500" : "text-red-500" },
-    { label: "Current Drawdown", value: formatPercent(metrics.currentDrawdown), color: metrics.currentDrawdown > -0.05 ? "text-green-500" : metrics.currentDrawdown > -0.1 ? "text-yellow-500" : "text-red-500" },
+    { label: "Live Sharpe (30d)", value: formatNumber(metrics.liveSharpe30d), color: metrics.liveSharpe30d >= 1 ? "text-profit" : metrics.liveSharpe30d >= 0 ? "text-warning" : "text-loss" },
+    { label: "Win Rate (30)", value: formatPercent(metrics.winRate30), color: metrics.winRate30 >= 0.5 ? "text-profit" : "text-loss" },
+    { label: "Current Drawdown", value: formatPercent(metrics.currentDrawdown), color: metrics.currentDrawdown > -0.05 ? "text-profit" : metrics.currentDrawdown > -0.1 ? "text-warning" : "text-loss" },
     { label: "Open Positions", value: String(metrics.openPositions), color: "text-[hsl(var(--foreground))]" },
-    { label: "Today's P&L", value: formatCurrency(metrics.todaysPnl), color: metrics.todaysPnl >= 0 ? "text-green-500" : "text-red-500" },
+    { label: "Today's P&L", value: formatCurrency(metrics.todaysPnl), color: metrics.todaysPnl >= 0 ? "text-profit" : "text-loss" },
     { label: "Available Cash", value: formatCurrency(metrics.availableCash), color: "text-[hsl(var(--foreground))]" },
   ];
 

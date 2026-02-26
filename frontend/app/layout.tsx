@@ -18,36 +18,43 @@ const navItems = [
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className="min-h-screen bg-[hsl(var(--background))] font-sans antialiased">
         <div className="flex min-h-screen">
-          <aside className="w-64 border-r border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 flex flex-col">
-            <div className="mb-8">
-              <h1 className="text-xl font-bold text-[hsl(var(--primary))]">RivrQuant</h1>
-              <p className="text-xs text-[hsl(var(--muted-foreground))]">Quantitative Trading Platform</p>
+          {/* Sidebar */}
+          <aside className="w-64 shrink-0 border-r border-[hsl(var(--border))] bg-[hsl(var(--card))] flex flex-col shadow-sm">
+            {/* Brand */}
+            <div className="px-5 py-5 border-b border-[hsl(var(--border))]">
+              <h1 className="text-lg font-bold tracking-tight text-[hsl(var(--primary))]">RivrQuant</h1>
+              <p className="text-[11px] text-[hsl(var(--muted-foreground))] mt-0.5">Quantitative Trading Platform</p>
             </div>
-            <nav className="flex-1 space-y-1">
+
+            {/* Nav */}
+            <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
               {navItems.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--foreground))] transition-colors"
+                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition-colors duration-150"
                 >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
                     <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
                   </svg>
                   {item.label}
                 </a>
               ))}
             </nav>
-            <div className="mt-auto pt-4 border-t border-[hsl(var(--border))]">
+
+            {/* Status footer */}
+            <div className="px-5 py-4 border-t border-[hsl(var(--border))]">
               <div className="flex items-center gap-2 text-xs text-[hsl(var(--muted-foreground))]">
-                <span className="h-2 w-2 rounded-full bg-green-500" />
-                Connected
+                <span className="h-2 w-2 rounded-full bg-profit" />
+                <span>Connected</span>
               </div>
             </div>
           </aside>
-          <main className="flex-1 overflow-auto p-6">{children}</main>
+
+          <main className="flex-1 overflow-auto bg-[hsl(var(--muted))] p-6">{children}</main>
         </div>
       </body>
     </html>

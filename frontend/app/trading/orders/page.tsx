@@ -8,20 +8,20 @@ import type { OrderDto } from "@/lib/types";
 function getStatusColor(status: string): string {
   switch (status) {
     case "Filled":
-      return "text-green-500";
+      return "text-profit";
     case "PartiallyFilled":
-      return "text-yellow-500";
+      return "text-warning";
     case "Cancelled":
     case "Rejected":
-      return "text-red-500";
+      return "text-loss";
     default:
       return "text-[hsl(var(--muted-foreground))]";
   }
 }
 
 function getSideColor(side: string): string {
-  if (side.toLowerCase() === "buy") return "text-green-500";
-  if (side.toLowerCase() === "sell") return "text-red-500";
+  if (side.toLowerCase() === "buy") return "text-profit";
+  if (side.toLowerCase() === "sell") return "text-loss";
   return "";
 }
 
@@ -165,7 +165,7 @@ export default function OrdersPage() {
                         <button
                           onClick={() => handleCancel(order.id)}
                           disabled={cancelling.has(order.id)}
-                          className="rounded-md border border-red-500 px-3 py-1 text-xs font-medium text-red-500 hover:bg-red-500 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="rounded-md border border-loss px-3 py-1 text-xs font-medium text-loss hover:bg-loss hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {cancelling.has(order.id) ? "Cancelling…" : "Cancel"}
                         </button>

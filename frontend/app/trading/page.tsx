@@ -43,7 +43,7 @@ export default function TradingPage() {
           </div>
           <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4">
             <p className="text-xs text-[hsl(var(--muted-foreground))]">Unrealized P&L</p>
-            <p className={`text-xl font-bold ${portfolio.unrealizedPnl >= 0 ? "text-green-500" : "text-red-500"}`}>
+            <p className={`text-xl font-bold ${portfolio.unrealizedPnl >= 0 ? "text-profit" : "text-loss"}`}>
               {formatCurrency(portfolio.unrealizedPnl)}
             </p>
           </div>
@@ -69,10 +69,10 @@ export default function TradingPage() {
                 <div className="text-sm text-[hsl(var(--muted-foreground))]">{p.side} {p.qty} @ {formatCurrency(p.entryPrice)}</div>
               </div>
               <div className="text-right">
-                <p className={`text-lg font-bold ${p.unrealizedPnl >= 0 ? "text-green-500" : "text-red-500"}`}>
+                <p className={`text-lg font-bold ${p.unrealizedPnl >= 0 ? "text-profit" : "text-loss"}`}>
                   {formatCurrency(p.unrealizedPnl)}
                 </p>
-                <p className={`text-sm ${p.pnlPercent >= 0 ? "text-green-500" : "text-red-500"}`}>{formatPercent(p.pnlPercent / 100)}</p>
+                <p className={`text-sm ${p.pnlPercent >= 0 ? "text-profit" : "text-loss"}`}>{formatPercent(p.pnlPercent / 100)}</p>
               </div>
             </div>
           ))}

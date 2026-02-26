@@ -9,22 +9,22 @@ interface AiReportRendererProps {
 
 function assessmentColor(assessment: string): string {
   const lower = assessment.toLowerCase();
-  if (lower.includes("strong")) return "bg-green-500/10 text-green-500 border-green-500/30";
-  if (lower.includes("weak")) return "bg-red-500/10 text-red-500 border-red-500/30";
-  return "bg-yellow-500/10 text-yellow-500 border-yellow-500/30";
+  if (lower.includes("strong")) return "bg-profit/10 text-profit border-profit/30";
+  if (lower.includes("weak")) return "bg-loss/10 text-loss border-loss/30";
+  return "bg-warning/10 text-warning border-warning/30";
 }
 
 function overfittingColor(risk: string): string {
   const lower = risk.toLowerCase();
-  if (lower === "low") return "bg-green-500/10 text-green-500";
-  if (lower === "high") return "bg-red-500/10 text-red-500";
-  return "bg-yellow-500/10 text-yellow-500";
+  if (lower === "low") return "bg-profit/10 text-profit";
+  if (lower === "high") return "bg-loss/10 text-loss";
+  return "bg-warning/10 text-warning";
 }
 
 function readinessColor(score: number): string {
-  if (score >= 7) return "bg-green-500";
-  if (score >= 4) return "bg-yellow-500";
-  return "bg-red-500";
+  if (score >= 7) return "bg-profit";
+  if (score >= 4) return "bg-warning";
+  return "bg-loss";
 }
 
 export default function AiReportRenderer({ report }: AiReportRendererProps) {
@@ -66,23 +66,23 @@ export default function AiReportRenderer({ report }: AiReportRendererProps) {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-6">
-          <h4 className="text-sm font-medium text-green-500 mb-3">Strengths</h4>
+        <div className="rounded-lg border border-profit/20 bg-profit/5 p-6">
+          <h4 className="text-sm font-medium text-profit mb-3">Strengths</h4>
           <ul className="space-y-2">
             {report.strengths.map((s, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-[hsl(var(--foreground))]">
-                <span className="mt-0.5 text-green-500">&#10003;</span>
+                <span className="mt-0.5 text-profit">&#10003;</span>
                 {s}
               </li>
             ))}
           </ul>
         </div>
-        <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-6">
-          <h4 className="text-sm font-medium text-red-500 mb-3">Weaknesses</h4>
+        <div className="rounded-lg border border-loss/20 bg-loss/5 p-6">
+          <h4 className="text-sm font-medium text-loss mb-3">Weaknesses</h4>
           <ul className="space-y-2">
             {report.weaknesses.map((w, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-[hsl(var(--foreground))]">
-                <span className="mt-0.5 text-red-500">&#10007;</span>
+                <span className="mt-0.5 text-loss">&#10007;</span>
                 {w}
               </li>
             ))}
@@ -91,12 +91,12 @@ export default function AiReportRenderer({ report }: AiReportRendererProps) {
       </div>
 
       {report.criticalWarnings.length > 0 && (
-        <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-6">
-          <h4 className="text-sm font-medium text-yellow-500 mb-3">Critical Warnings</h4>
+        <div className="rounded-lg border border-warning/30 bg-warning/5 p-6">
+          <h4 className="text-sm font-medium text-warning mb-3">Critical Warnings</h4>
           <ul className="space-y-2">
             {report.criticalWarnings.map((w, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-[hsl(var(--foreground))]">
-                <span className="mt-0.5 text-yellow-500">&#9888;</span>
+                <span className="mt-0.5 text-warning">&#9888;</span>
                 {w}
               </li>
             ))}

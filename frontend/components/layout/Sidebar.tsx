@@ -46,7 +46,7 @@ export default function Sidebar() {
       </nav>
       <div className="mt-auto pt-4 border-t border-[hsl(var(--border))]">
         <div className="flex items-center gap-2 text-xs text-[hsl(var(--muted-foreground))]">
-          <span className="h-2 w-2 rounded-full bg-green-500" />
+          <span className="h-2 w-2 rounded-full bg-profit" />
           Connected
         </div>
       </div>

@@ -58,20 +58,20 @@ export default function BacktestDetailPage() {
           <p>{bt.aiReport.overallAssessment}</p>
           {bt.aiReport.strengths.length > 0 && (
             <div>
-              <h4 className="font-medium text-green-500 mb-1">Strengths</h4>
+              <h4 className="font-medium text-profit mb-1">Strengths</h4>
               <ul className="list-disc list-inside text-sm space-y-1">{bt.aiReport.strengths.map((s, i) => <li key={i}>{s}</li>)}</ul>
             </div>
           )}
           {bt.aiReport.weaknesses.length > 0 && (
             <div>
-              <h4 className="font-medium text-red-500 mb-1">Weaknesses</h4>
+              <h4 className="font-medium text-loss mb-1">Weaknesses</h4>
               <ul className="list-disc list-inside text-sm space-y-1">{bt.aiReport.weaknesses.map((w, i) => <li key={i}>{w}</li>)}</ul>
             </div>
           )}
           {bt.aiReport.criticalWarnings.length > 0 && (
-            <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4">
-              <h4 className="font-medium text-red-500 mb-1">Critical Warnings</h4>
-              {bt.aiReport.criticalWarnings.map((w, i) => <p key={i} className="text-sm text-red-400">{w}</p>)}
+            <div className="rounded-lg bg-loss/10 border border-loss/20 p-4">
+              <h4 className="font-medium text-loss mb-1">Critical Warnings</h4>
+              {bt.aiReport.criticalWarnings.map((w, i) => <p key={i} className="text-sm text-loss">{w}</p>)}
             </div>
           )}
           <p className="text-sm text-[hsl(var(--muted-foreground))]">{bt.aiReport.summary}</p>
@@ -92,12 +92,12 @@ export default function BacktestDetailPage() {
             {(bt.trades ?? []).slice(0, 50).map((t, i) => (
               <tr key={i} className="border-b border-[hsl(var(--border))]">
                 <td className="py-1 font-medium">{t.symbol}</td>
-                <td className={t.side === "Buy" ? "text-green-500" : "text-red-500"}>{t.side}</td>
+                <td className={t.side === "Buy" ? "text-profit" : "text-loss"}>{t.side}</td>
                 <td className="text-xs">{formatDateTime(t.entryTime)}</td>
                 <td className="text-xs">{formatDateTime(t.exitTime)}</td>
                 <td className="text-right">{t.quantity}</td>
-                <td className={`text-right ${t.profitLoss >= 0 ? "text-green-500" : "text-red-500"}`}>{formatCurrency(t.profitLoss)}</td>
-                <td className={`text-right ${t.profitLossPercent >= 0 ? "text-green-500" : "text-red-500"}`}>{formatPercent(t.profitLossPercent)}</td>
+                <td className={`text-right ${t.profitLoss >= 0 ? "text-profit" : "text-loss"}`}>{formatCurrency(t.profitLoss)}</td>
+                <td className={`text-right ${t.profitLossPercent >= 0 ? "text-profit" : "text-loss"}`}>{formatPercent(t.profitLossPercent)}</td>
               </tr>
             ))}
           </tbody>

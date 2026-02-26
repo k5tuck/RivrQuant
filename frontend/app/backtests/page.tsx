@@ -43,14 +43,14 @@ export default function BacktestsPage() {
                 <td className="p-3 font-medium">{bt.strategyName}</td>
                 <td className="p-3 text-[hsl(var(--muted-foreground))]">{formatDate(bt.dateRun)}</td>
                 <td className="p-3 text-right">{formatNumber(bt.sharpeRatio, 3)}</td>
-                <td className="p-3 text-right text-red-400">{formatPercent(bt.maxDrawdown)}</td>
-                <td className={`p-3 text-right ${bt.totalReturn >= 0 ? "text-green-500" : "text-red-500"}`}>
+                <td className="p-3 text-right text-loss">{formatPercent(bt.maxDrawdown)}</td>
+                <td className={`p-3 text-right ${bt.totalReturn >= 0 ? "text-profit" : "text-loss"}`}>
                   {formatPercent(Number(bt.totalReturn))}
                 </td>
                 <td className="p-3 text-right">{formatPercent(bt.winRate)}</td>
                 <td className="p-3 text-right">{bt.aiScore ?? "—"}</td>
                 <td className="p-3 text-center">
-                  <span className={`text-xs px-2 py-1 rounded-full ${bt.isAnalyzed ? "bg-green-500/10 text-green-500" : "bg-yellow-500/10 text-yellow-500"}`}>
+                  <span className={`text-xs px-2 py-1 rounded-full ${bt.isAnalyzed ? "bg-profit/10 text-profit" : "bg-warning/10 text-warning"}`}>
                     {bt.isAnalyzed ? "Analyzed" : "Pending"}
                   </span>
                 </td>

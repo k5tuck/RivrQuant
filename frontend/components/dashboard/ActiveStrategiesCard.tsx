@@ -31,10 +31,10 @@ export default function ActiveStrategiesCard() {
           {strategies.map((s) => (
             <div key={s.id} className="flex items-center justify-between rounded-md border border-[hsl(var(--border))] px-3 py-2">
               <div className="flex items-center gap-2">
-                <span className={`h-2 w-2 rounded-full ${s.isActive ? "bg-green-500" : "bg-zinc-500"}`} />
+                <span className={`h-2 w-2 rounded-full ${s.isActive ? "bg-profit" : "bg-zinc-500"}`} />
                 <span className="text-sm text-[hsl(var(--foreground))]">{s.name}</span>
               </div>
-              <span className={`text-xs px-2 py-0.5 rounded ${s.isActive ? "bg-green-500/10 text-green-500" : "bg-zinc-500/10 text-zinc-400"}`}>
+              <span className={`text-xs px-2 py-0.5 rounded ${s.isActive ? "bg-profit/10 text-profit" : "bg-zinc-500/10 text-zinc-400"}`}>
                 {s.isActive ? "Running" : "Paused"}
               </span>
             </div>

@@ -21,6 +21,11 @@ const config: Config = {
         accent: "hsl(var(--accent))",
         "accent-foreground": "hsl(var(--accent-foreground))",
         destructive: "hsl(var(--destructive))",
+        // Trading semantic tokens — support opacity modifiers (bg-profit/10, etc.)
+        profit:  "hsl(var(--profit) / <alpha-value>)",
+        loss:    "hsl(var(--loss) / <alpha-value>)",
+        warning: "hsl(var(--warning) / <alpha-value>)",
+        gold:    "hsl(var(--warning) / <alpha-value>)",
       },
       borderRadius: {
         lg: "var(--radius)",

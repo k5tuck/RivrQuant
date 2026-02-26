@@ -38,7 +38,7 @@ export default function RecentTradesTable({ trades }: RecentTradesTableProps) {
               <td className="px-4 py-2 text-[hsl(var(--muted-foreground))]">{formatDateTime(trade.createdAt)}</td>
               <td className="px-4 py-2 font-medium text-[hsl(var(--foreground))]">{trade.symbol}</td>
               <td className="px-4 py-2">
-                <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${trade.side === "Buy" ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"}`}>
+                <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${trade.side === "Buy" ? "bg-profit/10 text-profit" : "bg-loss/10 text-loss"}`}>
                   {trade.side}
                 </span>
               </td>

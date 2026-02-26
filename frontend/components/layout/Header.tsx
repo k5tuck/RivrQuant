@@ -26,7 +26,7 @@ export default function Header() {
             </div>
             <div>
               <p className="text-xs text-[hsl(var(--muted-foreground))]">Daily Change</p>
-              <p className={`text-sm font-medium ${portfolio.dailyChange >= 0 ? "text-green-500" : "text-red-500"}`}>
+              <p className={`text-sm font-medium ${portfolio.dailyChange >= 0 ? "text-profit" : "text-loss"}`}>
                 {portfolio.dailyChange >= 0 ? "+" : ""}{formatCurrency(portfolio.dailyChange)} ({portfolio.dailyChangePercent >= 0 ? "+" : ""}{formatPercent(portfolio.dailyChangePercent)})
               </p>
             </div>

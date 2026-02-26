@@ -7,30 +7,30 @@ import type { AnalysisReportDto } from "@/lib/types";
 
 function assessmentBadgeStyle(assessment: string): string {
   const val = assessment.toLowerCase();
-  if (val.includes("strong")) return "bg-green-500/10 text-green-500 border border-green-500/20";
-  if (val.includes("moderate")) return "bg-yellow-500/10 text-yellow-500 border border-yellow-500/20";
-  if (val.includes("weak")) return "bg-red-500/10 text-red-500 border border-red-500/20";
+  if (val.includes("strong")) return "bg-profit/10 text-profit border border-profit/20";
+  if (val.includes("moderate")) return "bg-warning/10 text-warning border border-warning/20";
+  if (val.includes("weak")) return "bg-loss/10 text-loss border border-loss/20";
   return "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] border border-[hsl(var(--border))]";
 }
 
 function overfittingBadgeStyle(risk: string): string {
   const val = risk.toLowerCase();
-  if (val === "low") return "bg-green-500/10 text-green-500 border border-green-500/20";
-  if (val === "moderate") return "bg-yellow-500/10 text-yellow-500 border border-yellow-500/20";
-  if (val === "high") return "bg-red-500/10 text-red-500 border border-red-500/20";
+  if (val === "low") return "bg-profit/10 text-profit border border-profit/20";
+  if (val === "moderate") return "bg-warning/10 text-warning border border-warning/20";
+  if (val === "high") return "bg-loss/10 text-loss border border-loss/20";
   return "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] border border-[hsl(var(--border))]";
 }
 
 function deploymentBarColor(score: number): string {
-  if (score >= 70) return "bg-green-500";
-  if (score >= 40) return "bg-yellow-500";
-  return "bg-red-500";
+  if (score >= 70) return "bg-profit";
+  if (score >= 40) return "bg-warning";
+  return "bg-loss";
 }
 
 function deploymentTextColor(score: number): string {
-  if (score >= 70) return "text-green-500";
-  if (score >= 40) return "text-yellow-500";
-  return "text-red-500";
+  if (score >= 70) return "text-profit";
+  if (score >= 40) return "text-warning";
+  return "text-loss";
 }
 
 export default function AnalysisDetailPage() {
@@ -119,12 +119,12 @@ export default function AnalysisDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Strengths */}
         <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 space-y-3">
-          <h3 className="text-sm font-semibold text-green-500 uppercase tracking-wide">Strengths</h3>
+          <h3 className="text-sm font-semibold text-profit uppercase tracking-wide">Strengths</h3>
           {report.strengths.length > 0 ? (
             <ul className="space-y-2">
               {report.strengths.map((strength, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm">
-                  <span className="text-green-500 mt-0.5 shrink-0">&#10003;</span>
+                  <span className="text-profit mt-0.5 shrink-0">&#10003;</span>
                   <span>{strength}</span>
                 </li>
               ))}
@@ -136,12 +136,12 @@ export default function AnalysisDetailPage() {
 
         {/* Weaknesses */}
         <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 space-y-3">
-          <h3 className="text-sm font-semibold text-red-500 uppercase tracking-wide">Weaknesses</h3>
+          <h3 className="text-sm font-semibold text-loss uppercase tracking-wide">Weaknesses</h3>
           {report.weaknesses.length > 0 ? (
             <ul className="space-y-2">
               {report.weaknesses.map((weakness, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm">
-                  <span className="text-red-500 mt-0.5 shrink-0">&#10007;</span>
+                  <span className="text-loss mt-0.5 shrink-0">&#10007;</span>
                   <span>{weakness}</span>
                 </li>
               ))}
@@ -154,16 +154,16 @@ export default function AnalysisDetailPage() {
 
       {/* Critical Warnings */}
       {report.criticalWarnings.length > 0 && (
-        <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-6 space-y-3">
-          <h3 className="text-sm font-semibold text-yellow-500 uppercase tracking-wide flex items-center gap-2">
+        <div className="rounded-xl border border-warning/30 bg-warning/5 p-6 space-y-3">
+          <h3 className="text-sm font-semibold text-warning uppercase tracking-wide flex items-center gap-2">
             <span>&#9888;</span>
             Critical Warnings
           </h3>
           <ul className="space-y-2">
             {report.criticalWarnings.map((warning, i) => (
               <li key={i} className="flex items-start gap-2 text-sm">
-                <span className="text-yellow-500 mt-0.5 shrink-0">&#9888;</span>
-                <span className="text-yellow-500/90">{warning}</span>
+                <span className="text-warning mt-0.5 shrink-0">&#9888;</span>
+                <span className="text-warning/90">{warning}</span>
               </li>
             ))}
           </ul>

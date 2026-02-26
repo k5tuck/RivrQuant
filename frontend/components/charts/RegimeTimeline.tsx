@@ -14,11 +14,11 @@ interface Props {
 }
 
 const REGIME_COLORS: Record<string, string> = {
-  Trending: "bg-green-500",
-  MeanReverting: "bg-yellow-500",
+  Trending: "bg-profit",
+  MeanReverting: "bg-warning",
   HighVolatility: "bg-orange-500",
   LowVolatility: "bg-gray-500",
-  Crisis: "bg-red-500",
+  Crisis: "bg-loss",
 };
 
 const REGIME_HEX: Record<string, string> = {
@@ -126,7 +126,7 @@ export default function RegimeTimeline({ data }: Props) {
             Return:{" "}
             <span
               className={
-                tooltip.returnInRegime >= 0 ? "text-green-500" : "text-red-500"
+                tooltip.returnInRegime >= 0 ? "text-profit" : "text-loss"
               }
             >
               {tooltip.returnInRegime >= 0 ? "+" : ""}

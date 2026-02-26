@@ -31,7 +31,7 @@ export default function BacktestComparisonTable({ backtests }: BacktestCompariso
     { label: "AI Score", getValue: (b: BacktestDetailDto) => b.aiScore !== undefined && b.aiScore !== null ? formatNumber(b.aiScore) : "\u2014" },
   ];
 
-  const colors = ["text-blue-400", "text-green-400", "text-yellow-400", "text-purple-400"];
+  const colors = ["text-blue-400", "text-profit", "text-warning", "text-purple-400"];
 
   return (
     <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] overflow-hidden">

@@ -7,7 +7,7 @@ type BadgeProps = {
 function StatusBadge({ configured }: BadgeProps) {
   if (configured) {
     return (
-      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-profit/15 text-profit dark:bg-profit/30 dark:text-profit">
         Configured
       </span>
     );
@@ -84,7 +84,7 @@ export default function SettingsPage() {
             <SettingRow
               label="Mode"
               value={
-                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-warning/15 text-warning dark:bg-warning/30 dark:text-warning">
                   Testnet
                 </span>
               }
