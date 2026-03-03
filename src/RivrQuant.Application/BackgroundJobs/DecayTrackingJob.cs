@@ -5,30 +5,30 @@ using Microsoft.Extensions.Logging;
 using RivrQuant.Domain.Interfaces;
 using RivrQuant.Infrastructure.Persistence;
 
-/// <summary>Hangfire recurring job that compares live performance against backtest expectations.</summary>
-public sealed class LivePerformanceComparisonJob
+/// <summary>
+/// Hangfire recurring job that checks out-of-sample decay daily.
+/// Compares last 30 days of live performance against the backtest that justified deployment.
+/// </summary>
+public sealed class DecayTrackingJob
 {
     private readonly RivrQuantDbContext _db;
-    private readonly IPortfolioTracker _portfolioTracker;
     private readonly IStatisticsEngine _statistics;
-    private readonly ILogger<LivePerformanceComparisonJob> _logger;
+    private readonly ILogger<DecayTrackingJob> _logger;
 
-    public LivePerformanceComparisonJob(
+    public DecayTrackingJob(
         RivrQuantDbContext db,
-        IPortfolioTracker portfolioTracker,
         IStatisticsEngine statistics,
-        ILogger<LivePerformanceComparisonJob> logger)
+        ILogger<DecayTrackingJob> logger)
     {
         _db = db;
-        _portfolioTracker = portfolioTracker;
         _statistics = statistics;
         _logger = logger;
     }
 
-    /// <summary>Compares live performance against backtest predictions for deployed strategies.</summary>
+    /// <summary>Evaluates out-of-sample decay for each deployed strategy.</summary>
     public async Task ExecuteAsync()
     {
-        _logger.LogDebug("Live performance comparison job started");
+        _logger.LogDebug("Decay tracking job started");
 
         try
         {
@@ -38,7 +38,7 @@ public sealed class LivePerformanceComparisonJob
 
             if (activeStrategies.Count == 0)
             {
-                _logger.LogDebug("No active strategies to compare");
+                _logger.LogDebug("No active strategies for decay tracking");
                 return;
             }
 
@@ -47,9 +47,9 @@ public sealed class LivePerformanceComparisonJob
                 .Take(30)
                 .ToListAsync(CancellationToken.None);
 
-            if (snapshots.Count < 5)
+            if (snapshots.Count < 10)
             {
-                _logger.LogDebug("Insufficient snapshots ({Count}) for meaningful comparison", snapshots.Count);
+                _logger.LogDebug("Insufficient snapshots ({Count}) for decay analysis", snapshots.Count);
                 return;
             }
 
@@ -68,38 +68,42 @@ public sealed class LivePerformanceComparisonJob
                     .OrderByDescending(b => b.CreatedAt)
                     .FirstOrDefaultAsync(CancellationToken.None);
 
-                if (backtestResult?.Metrics is null)
-                {
-                    _logger.LogDebug("No backtest metrics found for strategy {Strategy}", strategy.Name);
-                    continue;
-                }
+                if (backtestResult?.Metrics is null) continue;
 
                 var backtestSharpe = backtestResult.Metrics.SharpeRatio;
-                var sharpeRatio = backtestSharpe != 0 ? liveSharpe / backtestSharpe : 0;
+                var ratio = backtestSharpe != 0 ? liveSharpe / backtestSharpe : 0;
 
-                if (sharpeRatio < 0)
+                var severity = ratio switch
                 {
-                    _logger.LogWarning(
-                        "Strategy {Strategy}: FAILURE — Live Sharpe ({LiveSharpe:F2}) is negative while backtest Sharpe ({BacktestSharpe:F2}) was positive",
+                    < 0 => "failure",
+                    < 0.5 => "significant",
+                    < 0.75 => "moderate",
+                    _ => "none"
+                };
+
+                if (severity == "failure")
+                {
+                    _logger.LogCritical(
+                        "STRATEGY FAILURE: {Strategy} — Live Sharpe ({LiveSharpe:F2}) is negative while backtest ({BacktestSharpe:F2}) was positive. Auto-pause recommended.",
                         strategy.Name, liveSharpe, backtestSharpe);
                 }
-                else if (sharpeRatio < 0.5)
+                else if (severity == "significant")
                 {
                     _logger.LogWarning(
-                        "Strategy {Strategy}: SIGNIFICANT DECAY — Live Sharpe ({LiveSharpe:F2}) is less than half of backtest Sharpe ({BacktestSharpe:F2}). Ratio: {Ratio:F2}",
-                        strategy.Name, liveSharpe, backtestSharpe, sharpeRatio);
+                        "Significant decay: {Strategy} — Live Sharpe ({LiveSharpe:F2}) < 50% of backtest ({BacktestSharpe:F2}). Consider pausing.",
+                        strategy.Name, liveSharpe, backtestSharpe);
                 }
-                else
+                else if (severity == "moderate")
                 {
                     _logger.LogInformation(
-                        "Strategy {Strategy}: OK — Live Sharpe ({LiveSharpe:F2}) vs Backtest Sharpe ({BacktestSharpe:F2}). Ratio: {Ratio:F2}",
-                        strategy.Name, liveSharpe, backtestSharpe, sharpeRatio);
+                        "Moderate decay: {Strategy} — Live Sharpe ({LiveSharpe:F2}) at {Ratio:P0} of backtest ({BacktestSharpe:F2})",
+                        strategy.Name, liveSharpe, ratio, backtestSharpe);
                 }
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogError(ex, "Live performance comparison job failed");
+            _logger.LogError(ex, "Decay tracking job failed");
         }
     }
 }

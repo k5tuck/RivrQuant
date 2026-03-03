@@ -16,6 +16,12 @@ public static class DependencyInjection
         services.AddScoped<AnalysisService>();
         services.AddScoped<AlertAppService>();
         services.AddScoped<StrategyService>();
+
+        // Risk & Execution Engine services
+        services.AddScoped<RiskManagementService>();
+        services.AddScoped<ExecutionService>();
+        services.AddScoped<ExposureService>();
+        services.AddScoped<AllocationService>();
         return services;
     }
 }

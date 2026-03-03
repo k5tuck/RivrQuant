@@ -4,12 +4,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RivrQuant.Domain.Interfaces;
+using RivrQuant.Infrastructure.Allocation;
 using RivrQuant.Infrastructure.Analysis;
 using RivrQuant.Infrastructure.Alerts;
 using RivrQuant.Infrastructure.Brokers.Alpaca;
 using RivrQuant.Infrastructure.Brokers.Bybit;
+using RivrQuant.Infrastructure.Execution;
+using RivrQuant.Infrastructure.Exposure;
 using RivrQuant.Infrastructure.Persistence;
 using RivrQuant.Infrastructure.QuantConnect;
+using RivrQuant.Infrastructure.Risk;
+using RivrQuant.Infrastructure.Risk.PositionSizing;
 using RivrQuant.Infrastructure.Stubs;
 
 /// <summary>Service registration for the Infrastructure layer.</summary>
@@ -107,6 +112,39 @@ public static class DependencyInjection
         services.AddScoped<TwilioSmsSender>();
         services.AddScoped<AlertDispatcher>();
         services.AddScoped<AlertRuleEvaluator>();
+
+        // --- Risk & Execution Engine ---
+
+        // Execution cost modeling
+        services.AddSingleton<SimpleSlippageModel>();
+        services.AddSingleton<SpreadEstimator>();
+        services.AddSingleton<CommissionCalculator>();
+        services.AddScoped<IExecutionCostModel, ExecutionCostAggregator>();
+        services.AddScoped<IFillAnalyzer, PostTradeFillAnalyzer>();
+
+        // Position sizing
+        services.AddScoped<KellyPositionSizer>();
+        services.AddScoped<VolatilityTargetSizer>();
+        services.AddScoped<FixedFractionalSizer>();
+        services.AddScoped<IPositionSizer, CompositePositionSizer>();
+
+        // Drawdown management
+        services.AddScoped<IDrawdownManager, DrawdownManager>();
+
+        // Volatility targeting
+        services.AddScoped<IVolatilityTargetEngine, VolatilityTargetEngine>();
+
+        // Ruin probability
+        services.AddSingleton<RuinProbabilityCalculator>();
+
+        // Exposure tracking
+        services.AddSingleton<SectorMapper>();
+        services.AddScoped<CorrelationEngine>();
+        services.AddScoped<IExposureTracker, ExposureTracker>();
+
+        // Capital allocation
+        services.AddScoped<ICapitalAllocator, EqualWeightAllocator>();
+        services.AddScoped<AllocationOrchestrator>();
 
         return services;
     }

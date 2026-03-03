@@ -83,4 +83,14 @@ RecurringJob.AddOrUpdate<PortfolioSnapshotJob>("portfolio-snapshot", job => job.
 RecurringJob.AddOrUpdate<AlertEvaluationJob>("alert-evaluation", job => job.ExecuteAsync(), "*/1 * * * *");
 RecurringJob.AddOrUpdate<LivePerformanceComparisonJob>("live-performance", job => job.ExecuteAsync(), "*/5 * * * *");
 
+// Risk & Execution Engine jobs
+// Drawdown monitor: every 15 seconds (Hangfire minimum is 1 minute via cron, so use fire-and-forget scheduling)
+// For sub-minute scheduling, register at 1-minute interval. For true 15-second monitoring, use a hosted service.
+RecurringJob.AddOrUpdate<DrawdownMonitorJob>("drawdown-monitor", job => job.ExecuteAsync(), "* * * * *");
+RecurringJob.AddOrUpdate<VolatilityUpdateJob>("volatility-update", job => job.ExecuteAsync(), "*/5 * * * *");
+RecurringJob.AddOrUpdate<ExposureSnapshotJob>("exposure-snapshot", job => job.ExecuteAsync(), "* * * * *");
+RecurringJob.AddOrUpdate<CorrelationUpdateJob>("correlation-update", job => job.ExecuteAsync(), "0 * * * *");
+RecurringJob.AddOrUpdate<DecayTrackingJob>("decay-tracking", job => job.ExecuteAsync(), "30 16 * * 1-5");
+RecurringJob.AddOrUpdate<CriticalJobWatchdog>("critical-watchdog", job => job.ExecuteAsync(), "*/2 * * * *");
+
 app.Run();
