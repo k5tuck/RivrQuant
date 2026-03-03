@@ -4,8 +4,10 @@ using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using RivrQuant.Api.Hubs;
 using RivrQuant.Api.Middleware;
+using RivrQuant.Api.Notifications;
 using RivrQuant.Application;
 using RivrQuant.Application.BackgroundJobs;
+using RivrQuant.Application.Notifications;
 using RivrQuant.Infrastructure;
 using RivrQuant.Infrastructure.Persistence;
 
@@ -49,16 +51,24 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddHealthChecks();
 
+// Real-time event publisher — implemented in API layer using IHubContext<TradingHub>.
+builder.Services.AddScoped<IRealtimeEventPublisher, SignalREventPublisher>();
+
+// DrawdownMonitorService runs every 15 seconds as a hosted service, bypassing
+// Hangfire's 1-minute cron resolution limit. The old Hangfire DrawdownMonitorJob
+// registration is intentionally omitted below.
+builder.Services.AddHostedService<DrawdownMonitorService>();
+
 var app = builder.Build();
 
+// Apply EF Core migrations on startup so schema changes deploy automatically
+// when a new container version starts. Migrate() is idempotent — it only applies
+// pending migrations and is safe to call on every startup.
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<RivrQuantDbContext>();
-    // EnsureCreated creates the full schema from the current model on first run
-    // (safe for both SQLite dev and fresh PostgreSQL prod).
-    // Once EF migrations are scaffolded (dotnet ef migrations add Initial),
-    // switch this to db.Database.Migrate() so future schema changes apply automatically.
-    db.Database.EnsureCreated();
+    db.Database.Migrate();
+    app.Logger.LogInformation("Database migrations applied successfully");
 }
 
 if (app.Environment.IsDevelopment())
@@ -78,19 +88,16 @@ app.MapHangfireDashboard("/hangfire");
 app.MapHealthChecks("/health");
 
 var pollInterval = builder.Configuration.GetValue("QC_POLL_INTERVAL_SECONDS", 300);
-RecurringJob.AddOrUpdate<BacktestPollingJob>("backtest-polling", job => job.ExecuteAsync(), $"*/{Math.Max(pollInterval / 60, 1)} * * * *");
+RecurringJob.AddOrUpdate<BacktestPollingJob>("backtest-polling",  job => job.ExecuteAsync(), $"*/{Math.Max(pollInterval / 60, 1)} * * * *");
 RecurringJob.AddOrUpdate<PortfolioSnapshotJob>("portfolio-snapshot", job => job.ExecuteAsync(), "* * * * *");
-RecurringJob.AddOrUpdate<AlertEvaluationJob>("alert-evaluation", job => job.ExecuteAsync(), "*/1 * * * *");
+RecurringJob.AddOrUpdate<AlertEvaluationJob>("alert-evaluation",  job => job.ExecuteAsync(), "*/1 * * * *");
 RecurringJob.AddOrUpdate<LivePerformanceComparisonJob>("live-performance", job => job.ExecuteAsync(), "*/5 * * * *");
 
-// Risk & Execution Engine jobs
-// Drawdown monitor: every 15 seconds (Hangfire minimum is 1 minute via cron, so use fire-and-forget scheduling)
-// For sub-minute scheduling, register at 1-minute interval. For true 15-second monitoring, use a hosted service.
-RecurringJob.AddOrUpdate<DrawdownMonitorJob>("drawdown-monitor", job => job.ExecuteAsync(), "* * * * *");
-RecurringJob.AddOrUpdate<VolatilityUpdateJob>("volatility-update", job => job.ExecuteAsync(), "*/5 * * * *");
-RecurringJob.AddOrUpdate<ExposureSnapshotJob>("exposure-snapshot", job => job.ExecuteAsync(), "* * * * *");
+// Risk & Execution Engine jobs (DrawdownMonitorJob removed — replaced by DrawdownMonitorService hosted service)
+RecurringJob.AddOrUpdate<VolatilityUpdateJob>("volatility-update",  job => job.ExecuteAsync(), "*/5 * * * *");
+RecurringJob.AddOrUpdate<ExposureSnapshotJob>("exposure-snapshot",  job => job.ExecuteAsync(), "* * * * *");
 RecurringJob.AddOrUpdate<CorrelationUpdateJob>("correlation-update", job => job.ExecuteAsync(), "0 * * * *");
-RecurringJob.AddOrUpdate<DecayTrackingJob>("decay-tracking", job => job.ExecuteAsync(), "30 16 * * 1-5");
-RecurringJob.AddOrUpdate<CriticalJobWatchdog>("critical-watchdog", job => job.ExecuteAsync(), "*/2 * * * *");
+RecurringJob.AddOrUpdate<DecayTrackingJob>("decay-tracking",         job => job.ExecuteAsync(), "30 16 * * 1-5");
+RecurringJob.AddOrUpdate<CriticalJobWatchdog>("critical-watchdog",   job => job.ExecuteAsync(), "*/2 * * * *");
 
 app.Run();

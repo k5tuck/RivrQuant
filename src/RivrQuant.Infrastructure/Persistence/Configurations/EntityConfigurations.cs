@@ -100,6 +100,7 @@ public sealed class StrategyConfiguration : IEntityTypeConfiguration<Strategy>
         builder.Property(e => e.AssetClass).HasConversion<string>().HasMaxLength(32);
         builder.HasIndex(e => e.Name);
         builder.HasIndex(e => e.CreatedAt);
+        builder.Property(e => e.Broker).HasConversion<string>().HasMaxLength(32);
         builder.HasMany(e => e.Parameters).WithOne().HasForeignKey(e => e.StrategyId).OnDelete(DeleteBehavior.Cascade);
         builder.HasMany(e => e.Versions).WithOne().HasForeignKey(e => e.StrategyId).OnDelete(DeleteBehavior.Cascade);
     }
@@ -308,5 +309,134 @@ public sealed class AlertChannelConfiguration : IEntityTypeConfiguration<AlertCh
         builder.Property(e => e.ChannelType).HasMaxLength(32).IsRequired();
         builder.Property(e => e.Destination).HasMaxLength(256).IsRequired();
         builder.HasIndex(e => e.ChannelType);
+    }
+}
+
+// ─── Risk & Execution Engine entity configurations ────────────────────────────
+
+using RivrQuant.Domain.Models.Execution;
+using RivrQuant.Domain.Models.Exposure;
+using RivrQuant.Domain.Models.Risk;
+
+/// <summary>EF Core configuration for <see cref="VolatilityTarget"/>.</summary>
+public sealed class VolatilityTargetConfiguration : IEntityTypeConfiguration<VolatilityTarget>
+{
+    public void Configure(EntityTypeBuilder<VolatilityTarget> builder)
+    {
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.TargetAnnualizedVol).HasPrecision(18, 8);
+        builder.Property(e => e.RealizedAnnualizedVol).HasPrecision(18, 8);
+        builder.Property(e => e.VolMultiplier).HasPrecision(18, 8);
+        builder.Property(e => e.PreviousRealizedVol).HasPrecision(18, 8);
+        builder.HasIndex(e => e.CalculatedAt);
+    }
+}
+
+/// <summary>EF Core configuration for <see cref="DeleverageEvent"/>.</summary>
+public sealed class DeleverageEventConfiguration : IEntityTypeConfiguration<DeleverageEvent>
+{
+    public void Configure(EntityTypeBuilder<DeleverageEvent> builder)
+    {
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.PreviousLevel).HasConversion<string>().HasMaxLength(32);
+        builder.Property(e => e.NewLevel).HasConversion<string>().HasMaxLength(32);
+        builder.Property(e => e.Reason).HasConversion<string>().HasMaxLength(64);
+        builder.Property(e => e.DrawdownPercentAtTrigger).HasPrecision(18, 8);
+        builder.Property(e => e.PortfolioValueAtTrigger).HasPrecision(18, 2);
+        builder.Property(e => e.PeakEquity).HasPrecision(18, 2);
+        builder.Property(e => e.ActionsTaken).HasMaxLength(4000);
+        builder.Property(e => e.PausedStrategiesJson).HasMaxLength(8000);
+        builder.HasIndex(e => e.TriggeredAt);
+        builder.HasIndex(e => e.NewLevel);
+    }
+}
+
+/// <summary>EF Core configuration for <see cref="RiskBudget"/>.</summary>
+public sealed class RiskBudgetConfiguration : IEntityTypeConfiguration<RiskBudget>
+{
+    public void Configure(EntityTypeBuilder<RiskBudget> builder)
+    {
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.StrategyName).HasMaxLength(256);
+        builder.Property(e => e.AllocatedRiskPercent).HasPrecision(18, 8);
+        builder.Property(e => e.UsedRiskPercent).HasPrecision(18, 8);
+        builder.Property(e => e.RemainingRiskPercent).HasPrecision(18, 8);
+        builder.HasIndex(e => e.StrategyId);
+        builder.HasIndex(e => e.CalculatedAt);
+    }
+}
+
+/// <summary>EF Core configuration for <see cref="PortfolioExposure"/>.</summary>
+public sealed class PortfolioExposureConfiguration : IEntityTypeConfiguration<PortfolioExposure>
+{
+    public void Configure(EntityTypeBuilder<PortfolioExposure> builder)
+    {
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.TotalPortfolioValue).HasPrecision(18, 2);
+        builder.Property(e => e.NetExposureDollars).HasPrecision(18, 2);
+        builder.Property(e => e.NetExposurePercent).HasPrecision(18, 8);
+        builder.Property(e => e.GrossExposureDollars).HasPrecision(18, 2);
+        builder.Property(e => e.GrossExposurePercent).HasPrecision(18, 8);
+        builder.Property(e => e.PortfolioBeta).HasPrecision(18, 8);
+        builder.Property(e => e.StockExposurePercent).HasPrecision(18, 8);
+        builder.Property(e => e.CryptoExposurePercent).HasPrecision(18, 8);
+        builder.Property(e => e.CashPercent).HasPrecision(18, 8);
+        builder.Property(e => e.AssetBreakdownJson).HasMaxLength(65535);
+        builder.Property(e => e.SectorBreakdownJson).HasMaxLength(65535);
+        builder.HasIndex(e => e.SnapshotAt);
+    }
+}
+
+/// <summary>EF Core configuration for <see cref="CorrelationSnapshot"/>.</summary>
+public sealed class CorrelationSnapshotConfiguration : IEntityTypeConfiguration<CorrelationSnapshot>
+{
+    public void Configure(EntityTypeBuilder<CorrelationSnapshot> builder)
+    {
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.SymbolsJson).HasMaxLength(8000);
+        builder.Property(e => e.MatrixJson).HasMaxLength(65535);
+        builder.HasIndex(e => e.SnapshotAt);
+    }
+}
+
+/// <summary>EF Core configuration for <see cref="FillAnalysis"/>.</summary>
+public sealed class FillAnalysisConfiguration : IEntityTypeConfiguration<FillAnalysis>
+{
+    public void Configure(EntityTypeBuilder<FillAnalysis> builder)
+    {
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.OrderId).HasMaxLength(256);
+        builder.Property(e => e.Symbol).HasMaxLength(32);
+        builder.Property(e => e.Broker).HasConversion<string>().HasMaxLength(32);
+        builder.Property(e => e.ExpectedFillPrice).HasPrecision(18, 8);
+        builder.Property(e => e.ActualFillPrice).HasPrecision(18, 8);
+        builder.Property(e => e.SlippageBps).HasPrecision(18, 4);
+        builder.Property(e => e.EstimatedSlippageBps).HasPrecision(18, 4);
+        builder.Property(e => e.SlippageDeviationBps).HasPrecision(18, 4);
+        builder.Property(e => e.ActualTotalCostDollars).HasPrecision(18, 8);
+        builder.Property(e => e.EstimatedTotalCostDollars).HasPrecision(18, 8);
+        builder.Property(e => e.CostDeviationDollars).HasPrecision(18, 8);
+        builder.HasIndex(e => e.OrderId);
+        builder.HasIndex(e => e.Symbol);
+        builder.HasIndex(e => e.AnalyzedAt);
+    }
+}
+
+/// <summary>EF Core configuration for <see cref="SlippageRecord"/>.</summary>
+public sealed class SlippageRecordConfiguration : IEntityTypeConfiguration<SlippageRecord>
+{
+    public void Configure(EntityTypeBuilder<SlippageRecord> builder)
+    {
+        builder.HasKey(e => e.Id);
+        builder.Property(e => e.OrderId).HasMaxLength(256);
+        builder.Property(e => e.Symbol).HasMaxLength(32);
+        builder.Property(e => e.Broker).HasConversion<string>().HasMaxLength(32);
+        builder.Property(e => e.ExpectedSlippageBps).HasPrecision(18, 4);
+        builder.Property(e => e.ActualSlippageBps).HasPrecision(18, 4);
+        builder.Property(e => e.DeviationBps).HasPrecision(18, 4);
+        builder.Property(e => e.NotionalValue).HasPrecision(18, 2);
+        builder.HasIndex(e => e.OrderId);
+        builder.HasIndex(e => e.Symbol);
+        builder.HasIndex(e => e.RecordedAt);
     }
 }
