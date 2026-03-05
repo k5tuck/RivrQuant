@@ -24,8 +24,8 @@ export default function KillSwitchButton() {
 
   if (confirming) {
     return (
-      <div className="rounded-lg border-2 border-red-500 bg-red-500/10 p-4">
-        <p className="mb-3 text-sm font-medium text-red-500">
+      <div className="rounded-lg border-2 border-loss bg-loss/10 p-4">
+        <p className="mb-3 text-sm font-medium text-loss">
           This will close ALL positions across ALL brokers. Are you sure?
         </p>
         <div className="flex gap-2">
@@ -45,10 +45,10 @@ export default function KillSwitchButton() {
           </button>
         </div>
         {result === "success" && (
-          <p className="mt-2 text-sm text-green-500">All positions closed successfully.</p>
+          <p className="mt-2 text-sm text-profit">All positions closed successfully.</p>
         )}
         {result === "error" && (
-          <p className="mt-2 text-sm text-red-500">Failed to close positions. Check broker connections.</p>
+          <p className="mt-2 text-sm text-loss">Failed to close positions. Check broker connections.</p>
         )}
       </div>
     );
@@ -57,7 +57,7 @@ export default function KillSwitchButton() {
   return (
     <button
       onClick={() => setConfirming(true)}
-      className="rounded-md border-2 border-red-500 bg-red-500/10 px-6 py-3 text-sm font-bold text-red-500 hover:bg-red-500/20 transition-colors"
+      className="rounded-md border-2 border-loss bg-loss/10 px-6 py-3 text-sm font-bold text-loss hover:bg-loss/20 transition-colors"
     >
       KILL SWITCH — Close All Positions
     </button>

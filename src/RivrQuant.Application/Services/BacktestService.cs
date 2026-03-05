@@ -50,6 +50,8 @@ public sealed class BacktestService
         {
             Id = b.Id,
             ExternalBacktestId = b.ExternalBacktestId,
+            ProjectId = b.ProjectId,
+            ProjectName = b.ProjectName,
             StrategyName = b.StrategyName,
             StartDate = b.StartDate,
             EndDate = b.EndDate,
@@ -61,6 +63,34 @@ public sealed class BacktestService
             TradeCount = b.Trades.Count,
             CreatedAt = b.CreatedAt
         }).ToList();
+    }
+
+    /// <summary>
+    /// Groups all backtests by QuantConnect project and returns one summary row
+    /// per distinct project (algorithm/bot).
+    /// </summary>
+    public async Task<IReadOnlyList<ProjectSummaryDto>> GetProjectSummariesAsync(CancellationToken ct)
+    {
+        var backtests = await _db.BacktestResults
+            .Include(b => b.Metrics)
+            .ToListAsync(ct);
+
+        return backtests
+            .GroupBy(b => b.ProjectId)
+            .Select(g => new ProjectSummaryDto
+            {
+                ProjectId = g.Key,
+                ProjectName = g.Where(b => b.ProjectName != null)
+                               .Select(b => b.ProjectName!)
+                               .FirstOrDefault() ?? g.Key,
+                BacktestCount = g.Count(),
+                AnalyzedCount = g.Count(b => b.IsAnalyzed),
+                BestSharpe = g.Max(b => b.Metrics != null ? b.Metrics.SharpeRatio : (double?)null),
+                BestTotalReturn = g.Max(b => b.TotalReturn),
+                LatestBacktest = g.Max(b => b.CreatedAt)
+            })
+            .OrderByDescending(p => p.LatestBacktest)
+            .ToList();
     }
 
     /// <summary>Retrieves a backtest with full detail.</summary>

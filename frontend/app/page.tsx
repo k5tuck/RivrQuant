@@ -26,7 +26,7 @@ export default function DashboardPage() {
       <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6">
         <p className="text-sm text-[hsl(var(--muted-foreground))]">Total Portfolio Value</p>
         <p className="text-3xl font-bold">{formatCurrency(portfolio?.totalEquity ?? 0)}</p>
-        <p className={`text-sm ${(portfolio?.dailyChangePercent ?? 0) >= 0 ? "text-green-500" : "text-red-500"}`}>
+        <p className={`text-sm ${(portfolio?.dailyChangePercent ?? 0) >= 0 ? "text-profit" : "text-loss"}`}>
           {formatCurrency(portfolio?.dailyChange ?? 0)} ({formatPercent((portfolio?.dailyChangePercent ?? 0) / 100)}) today
         </p>
       </div>
@@ -43,7 +43,7 @@ export default function DashboardPage() {
         ].map((m) => (
           <div key={m.label} className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4">
             <p className="text-xs text-[hsl(var(--muted-foreground))]">{m.label}</p>
-            <p className={`text-lg font-semibold ${m.color !== undefined ? (m.color ? "text-green-500" : "text-red-500") : ""}`}>
+            <p className={`text-lg font-semibold ${m.color !== undefined ? (m.color ? "text-profit" : "text-loss") : ""}`}>
               {m.value}
             </p>
           </div>
@@ -71,7 +71,7 @@ export default function DashboardPage() {
                 <tr key={t.id} className="border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))]">
                   <td className="py-2">{formatDateTime(t.createdAt)}</td>
                   <td className="font-medium">{t.symbol}</td>
-                  <td className={t.side === "Buy" ? "text-green-500" : "text-red-500"}>{t.side}</td>
+                  <td className={t.side === "Buy" ? "text-profit" : "text-loss"}>{t.side}</td>
                   <td className="text-right">{t.qty}</td>
                   <td className="text-right">{t.filledPrice ? formatCurrency(t.filledPrice) : "—"}</td>
                   <td>{t.broker}</td>
@@ -88,11 +88,11 @@ export default function DashboardPage() {
 
       {/* Recent Alerts */}
       {data?.recentAlerts && data.recentAlerts.length > 0 && (
-        <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-4">
-          <h3 className="text-sm font-semibold text-yellow-500 mb-2">Recent Alerts</h3>
+        <div className="rounded-xl border border-warning/20 bg-warning/5 p-4">
+          <h3 className="text-sm font-semibold text-warning mb-2">Recent Alerts</h3>
           {data.recentAlerts.slice(0, 3).map((a) => (
             <div key={a.id} className="text-sm py-1">
-              <span className={`font-medium ${a.severity === "Critical" ? "text-red-500" : "text-yellow-500"}`}>
+              <span className={`font-medium ${a.severity === "Critical" ? "text-loss" : "text-warning"}`}>
                 [{a.severity}]
               </span>{" "}
               {a.message}

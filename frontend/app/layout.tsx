@@ -8,6 +8,7 @@ export const metadata: Metadata = {
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
+  { href: "/algorithms", label: "Algorithms", icon: "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" },
   { href: "/backtests", label: "Backtests", icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" },
   { href: "/strategies", label: "Strategies", icon: "M13 10V3L4 14h7v7l9-11h-7z" },
   { href: "/trading", label: "Trading", icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
@@ -18,36 +19,43 @@ const navItems = [
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className="min-h-screen bg-[hsl(var(--background))] font-sans antialiased">
         <div className="flex min-h-screen">
-          <aside className="w-64 border-r border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 flex flex-col">
-            <div className="mb-8">
-              <h1 className="text-xl font-bold text-[hsl(var(--primary))]">RivrQuant</h1>
-              <p className="text-xs text-[hsl(var(--muted-foreground))]">Quantitative Trading Platform</p>
+          {/* Sidebar */}
+          <aside className="w-64 shrink-0 border-r border-[hsl(var(--border))] bg-[hsl(var(--card))] flex flex-col shadow-sm">
+            {/* Brand */}
+            <div className="px-5 py-5 border-b border-[hsl(var(--border))]">
+              <h1 className="text-lg font-bold tracking-tight text-[hsl(var(--primary))]">RivrQuant</h1>
+              <p className="text-[11px] text-[hsl(var(--muted-foreground))] mt-0.5">Quantitative Trading Platform</p>
             </div>
-            <nav className="flex-1 space-y-1">
+
+            {/* Nav */}
+            <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
               {navItems.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--foreground))] transition-colors"
+                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))] transition-colors duration-150"
                 >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
                     <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
                   </svg>
                   {item.label}
                 </a>
               ))}
             </nav>
-            <div className="mt-auto pt-4 border-t border-[hsl(var(--border))]">
+
+            {/* Status footer */}
+            <div className="px-5 py-4 border-t border-[hsl(var(--border))]">
               <div className="flex items-center gap-2 text-xs text-[hsl(var(--muted-foreground))]">
-                <span className="h-2 w-2 rounded-full bg-green-500" />
-                Connected
+                <span className="h-2 w-2 rounded-full bg-profit" />
+                <span>Connected</span>
               </div>
             </div>
           </aside>
-          <main className="flex-1 overflow-auto p-6">{children}</main>
+
+          <main className="flex-1 overflow-auto bg-[hsl(var(--muted))] p-6">{children}</main>
         </div>
       </body>
     </html>

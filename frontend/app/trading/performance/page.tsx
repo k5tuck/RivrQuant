@@ -23,16 +23,16 @@ interface RollingSharpePoint {
 
 function deviationBarColor(deviation: number): string {
   const abs = Math.abs(deviation);
-  if (abs <= 10) return "bg-green-500";
-  if (abs <= 25) return "bg-yellow-500";
-  return "bg-red-500";
+  if (abs <= 10) return "bg-profit";
+  if (abs <= 25) return "bg-warning";
+  return "bg-loss";
 }
 
 function deviationTextColor(deviation: number): string {
   const abs = Math.abs(deviation);
-  if (abs <= 10) return "text-green-500";
-  if (abs <= 25) return "text-yellow-500";
-  return "text-red-500";
+  if (abs <= 10) return "text-profit";
+  if (abs <= 25) return "text-warning";
+  return "text-loss";
 }
 
 function sharpeLabel(sharpe: number): string {
@@ -43,10 +43,10 @@ function sharpeLabel(sharpe: number): string {
 }
 
 function sharpeLabelColor(sharpe: number): string {
-  if (sharpe >= 2) return "bg-green-500/10 text-green-500";
+  if (sharpe >= 2) return "bg-profit/10 text-profit";
   if (sharpe >= 1) return "bg-blue-500/10 text-blue-500";
-  if (sharpe >= 0) return "bg-yellow-500/10 text-yellow-500";
-  return "bg-red-500/10 text-red-500";
+  if (sharpe >= 0) return "bg-warning/10 text-warning";
+  return "bg-loss/10 text-loss";
 }
 
 export default function PerformancePage() {
@@ -170,15 +170,15 @@ export default function PerformancePage() {
         {/* Threshold labels */}
         <div className="mt-3 flex gap-4 text-xs">
           <span className="flex items-center gap-1.5">
-            <span className="inline-block w-2 h-2 rounded-full bg-green-500" />
+            <span className="inline-block w-2 h-2 rounded-full bg-profit" />
             Within ±10% — On track
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block w-2 h-2 rounded-full bg-yellow-500" />
+            <span className="inline-block w-2 h-2 rounded-full bg-warning" />
             ±10–25% — Monitor
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block w-2 h-2 rounded-full bg-red-500" />
+            <span className="inline-block w-2 h-2 rounded-full bg-loss" />
             {">"} ±25% — Review strategy
           </span>
         </div>
@@ -226,7 +226,7 @@ export default function PerformancePage() {
           <h3 className="text-lg font-semibold">Rolling Sharpe Comparison</h3>
           <div className="flex items-center gap-4 text-xs text-[hsl(var(--muted-foreground))]">
             <span className="flex items-center gap-1.5">
-              <span className="inline-block w-4 h-0.5 bg-green-500" />
+              <span className="inline-block w-4 h-0.5 bg-profit" />
               Live 30d Sharpe
             </span>
             <span className="flex items-center gap-1.5">

@@ -38,4 +38,12 @@ public interface IBacktestProvider
     /// <param name="ct">A cancellation token to cancel the asynchronous operation.</param>
     /// <returns>A read-only list of project identifier strings.</returns>
     Task<IReadOnlyList<string>> GetProjectIdsAsync(CancellationToken ct);
+
+    /// <summary>
+    /// Retrieves all projects as (Id, Name) pairs. Used to label each backtest
+    /// with the human-readable algorithm/bot name from QuantConnect.
+    /// </summary>
+    /// <param name="ct">A cancellation token to cancel the asynchronous operation.</param>
+    /// <returns>A read-only list of (Id, Name) tuples for each accessible project.</returns>
+    Task<IReadOnlyList<(string Id, string Name)>> GetProjectsAsync(CancellationToken ct);
 }

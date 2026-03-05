@@ -29,6 +29,12 @@ public class Strategy
     public AssetClass AssetClass { get; init; }
 
     /// <summary>
+    /// Broker through which this strategy's live orders are routed.
+    /// Defaults to Alpaca (stocks/ETFs). Set to Bybit for crypto strategies.
+    /// </summary>
+    public BrokerType Broker { get; init; } = BrokerType.Alpaca;
+
+    /// <summary>
     /// Indicates whether the strategy is currently active and eligible for execution.
     /// </summary>
     public bool IsActive { get; set; }

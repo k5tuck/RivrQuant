@@ -47,8 +47,8 @@ export default function StrategyDetailPage() {
             <span
               className={`inline-block text-sm px-2 py-1 rounded-full font-medium ${
                 strategy.isActive
-                  ? "bg-green-500/10 text-green-500"
-                  : "bg-red-500/10 text-red-500"
+                  ? "bg-profit/10 text-profit"
+                  : "bg-loss/10 text-loss"
               }`}
             >
               {strategy.isActive ? "Active" : "Inactive"}

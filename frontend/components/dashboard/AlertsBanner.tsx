@@ -15,9 +15,9 @@ export default function AlertsBanner({ alerts }: AlertsBannerProps) {
   }
 
   return (
-    <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-3">
+    <div className="rounded-lg border border-warning/30 bg-warning/5 p-3">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium text-yellow-500">Active Alerts</h3>
+        <h3 className="text-sm font-medium text-warning">Active Alerts</h3>
         <a href="/alerts/history" className="text-xs text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]">
           View all &rarr;
         </a>

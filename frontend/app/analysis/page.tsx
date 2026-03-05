@@ -6,24 +6,24 @@ import type { AnalysisReportDto } from "@/lib/types";
 
 function assessmentStyle(assessment: string): string {
   const val = assessment.toLowerCase();
-  if (val.includes("strong")) return "bg-green-500/10 text-green-500";
-  if (val.includes("moderate")) return "bg-yellow-500/10 text-yellow-500";
-  if (val.includes("weak")) return "bg-red-500/10 text-red-500";
+  if (val.includes("strong")) return "bg-profit/10 text-profit";
+  if (val.includes("moderate")) return "bg-warning/10 text-warning";
+  if (val.includes("weak")) return "bg-loss/10 text-loss";
   return "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]";
 }
 
 function overfittingStyle(risk: string): string {
   const val = risk.toLowerCase();
-  if (val === "low") return "bg-green-500/10 text-green-500";
-  if (val === "moderate") return "bg-yellow-500/10 text-yellow-500";
-  if (val === "high") return "bg-red-500/10 text-red-500";
+  if (val === "low") return "bg-profit/10 text-profit";
+  if (val === "moderate") return "bg-warning/10 text-warning";
+  if (val === "high") return "bg-loss/10 text-loss";
   return "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]";
 }
 
 function deploymentBarColor(score: number): string {
-  if (score >= 70) return "bg-green-500";
-  if (score >= 40) return "bg-yellow-500";
-  return "bg-red-500";
+  if (score >= 70) return "bg-profit";
+  if (score >= 40) return "bg-warning";
+  return "bg-loss";
 }
 
 export default function AnalysisPage() {
@@ -85,7 +85,7 @@ export default function AnalysisPage() {
                 </td>
                 <td className="p-3 text-right">
                   {report.criticalWarnings.length > 0 ? (
-                    <span className="text-xs px-2 py-1 rounded-full bg-red-500/10 text-red-500 font-medium">
+                    <span className="text-xs px-2 py-1 rounded-full bg-loss/10 text-loss font-medium">
                       {report.criticalWarnings.length}
                     </span>
                   ) : (

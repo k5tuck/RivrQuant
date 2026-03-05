@@ -1,0 +1,72 @@
+name: Deploy — SSH Re-deploy to EC2
+
+# Triggers after Terraform apply succeeds, or manually for code-only deploys
+# (no infra changes — just pull latest code + restart containers).
+on:
+  workflow_run:
+    workflows: ["Terraform — Plan & Apply"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      ssh_host:
+        description: "EC2 public IP or hostname (overrides stored var)"
+        required: false
+        default: ""
+
+jobs:
+  deploy:
+    name: Re-deploy application
+    runs-on: ubuntu-latest
+    # Only run when triggered by a successful Terraform apply, or manually.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success')
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve target host
+        id: host
+        run: |
+          HOST="${{ github.event.inputs.ssh_host }}"
+          if [ -z "$HOST" ]; then
+            HOST="${{ vars.EC2_HOST }}"
+          fi
+          echo "host=$HOST" >> "$GITHUB_OUTPUT"
+
+      - name: SSH re-deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:        ${{ steps.host.outputs.host }}
+          username:    ec2-user
+          key:         ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          timeout:     10m
+          script: |
+            set -euo pipefail
+
+            # Expose the secret ARN and region so redeploy.sh can find secrets.
+            export RIVRQUANT_SECRET_ARN="${{ vars.TF_SECRET_ARN }}"
+            export AWS_REGION="${{ vars.AWS_REGION || 'us-east-1' }}"
+
+            bash /opt/rivrquant/infra/scripts/redeploy.sh
+
+      - name: Health check
+        run: |
+          HOST="${{ steps.host.outputs.host }}"
+          URL="http://$HOST/health"
+          echo "Waiting for health check at $URL ..."
+          for i in $(seq 1 12); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL" || echo "000")
+            echo "  Attempt $i: HTTP $STATUS"
+            if [ "$STATUS" = "200" ]; then
+              echo "Health check passed."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Health check failed after 2 minutes."
+          exit 1

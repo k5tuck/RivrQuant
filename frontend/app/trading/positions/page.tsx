@@ -23,12 +23,12 @@ export default function PositionsPage() {
             {positions.map((p) => (
               <tr key={`${p.symbol}-${p.broker}`} className="border-b border-[hsl(var(--border))]">
                 <td className="p-3 font-medium">{p.symbol}</td>
-                <td className={`p-3 ${p.side === "Buy" ? "text-green-500" : "text-red-500"}`}>{p.side}</td>
+                <td className={`p-3 ${p.side === "Buy" ? "text-profit" : "text-loss"}`}>{p.side}</td>
                 <td className="p-3 text-right">{p.qty}</td>
                 <td className="p-3 text-right">{formatCurrency(p.entryPrice)}</td>
                 <td className="p-3 text-right">{formatCurrency(p.currentPrice)}</td>
-                <td className={`p-3 text-right ${p.unrealizedPnl >= 0 ? "text-green-500" : "text-red-500"}`}>{formatCurrency(p.unrealizedPnl)}</td>
-                <td className={`p-3 text-right ${p.pnlPercent >= 0 ? "text-green-500" : "text-red-500"}`}>{formatPercent(p.pnlPercent / 100)}</td>
+                <td className={`p-3 text-right ${p.unrealizedPnl >= 0 ? "text-profit" : "text-loss"}`}>{formatCurrency(p.unrealizedPnl)}</td>
+                <td className={`p-3 text-right ${p.pnlPercent >= 0 ? "text-profit" : "text-loss"}`}>{formatPercent(p.pnlPercent / 100)}</td>
                 <td className="p-3">{p.broker}</td>
               </tr>
             ))}

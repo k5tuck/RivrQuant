@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using RivrQuant.Domain.Models.Alerts;
 using RivrQuant.Domain.Models.Analysis;
 using RivrQuant.Domain.Models.Backtests;
+using RivrQuant.Domain.Models.Execution;
+using RivrQuant.Domain.Models.Exposure;
+using RivrQuant.Domain.Models.Risk;
 using RivrQuant.Domain.Models.Strategies;
 using RivrQuant.Domain.Models.Trading;
 
@@ -60,6 +63,29 @@ public sealed class RivrQuantDbContext : DbContext
 
     /// <summary>Alert delivery channels.</summary>
     public DbSet<AlertChannel> AlertChannels => Set<AlertChannel>();
+
+    // --- Risk & Execution Engine entities ---
+
+    /// <summary>Fill quality analysis records.</summary>
+    public DbSet<FillAnalysis> FillAnalyses => Set<FillAnalysis>();
+
+    /// <summary>Slippage tracking records.</summary>
+    public DbSet<SlippageRecord> SlippageRecords => Set<SlippageRecord>();
+
+    /// <summary>Volatility target snapshots.</summary>
+    public DbSet<VolatilityTarget> VolatilityTargets => Set<VolatilityTarget>();
+
+    /// <summary>Drawdown deleverage event history.</summary>
+    public DbSet<DeleverageEvent> DeleverageEvents => Set<DeleverageEvent>();
+
+    /// <summary>Per-strategy risk budget allocations.</summary>
+    public DbSet<RiskBudget> RiskBudgets => Set<RiskBudget>();
+
+    /// <summary>Portfolio exposure snapshots.</summary>
+    public DbSet<PortfolioExposure> PortfolioExposures => Set<PortfolioExposure>();
+
+    /// <summary>Cross-asset correlation snapshots.</summary>
+    public DbSet<CorrelationSnapshot> CorrelationSnapshots => Set<CorrelationSnapshot>();
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)

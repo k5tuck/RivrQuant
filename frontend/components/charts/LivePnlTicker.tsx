@@ -37,14 +37,14 @@ export default function LivePnlTicker({ initialPnl = 0 }: LivePnlTickerProps) {
     <div
       className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 font-mono text-lg font-bold transition-all duration-300 ${
         flash === "up"
-          ? "border-green-500/50 bg-green-500/10"
+          ? "border-profit/50 bg-profit/10"
           : flash === "down"
-          ? "border-red-500/50 bg-red-500/10"
+          ? "border-loss/50 bg-loss/10"
           : "border-[hsl(var(--border))] bg-[hsl(var(--card))]"
       }`}
     >
       <span className="text-xs text-[hsl(var(--muted-foreground))]">Today</span>
-      <span className={isPositive ? "text-green-500" : "text-red-500"}>
+      <span className={isPositive ? "text-profit" : "text-loss"}>
         {isPositive ? "+" : ""}
         {formatCurrency(pnl)}
       </span>

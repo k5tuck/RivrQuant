@@ -81,10 +81,19 @@ public sealed class ParameterSweepRunner
 
     private static decimal? ExtractParameterValue(BacktestResult backtest, string parameterName)
     {
-        if (backtest.StrategyName.Contains(parameterName, StringComparison.OrdinalIgnoreCase))
+        // Try to extract numeric value after the parameter name in the strategy name
+        // Supports patterns: ParamName_123, ParamName=123, ParamName123, ParamName-123
+        var pattern = $@"(?i){System.Text.RegularExpressions.Regex.Escape(parameterName)}[\s_=\-]?(\d+\.?\d*)";
+        var match = System.Text.RegularExpressions.Regex.Match(
+            backtest.StrategyName ?? string.Empty, pattern);
+
+        if (match.Success && decimal.TryParse(match.Groups[1].Value,
+            System.Globalization.NumberStyles.Number,
+            System.Globalization.CultureInfo.InvariantCulture, out var value))
         {
-            return null;
+            return value;
         }
+
         return null;
     }
 }

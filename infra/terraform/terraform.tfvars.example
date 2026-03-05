@@ -1,0 +1,105 @@
+# =============================================================================
+# RivrQuant Terraform Variables
+# =============================================================================
+# Copy this file to terraform.tfvars, fill in your values, and run:
+#
+#   terraform init
+#   terraform plan
+#   terraform apply
+#
+# Values in terraform.tfvars are NOT committed to git (see .gitignore).
+# Sensitive values are stored in AWS Secrets Manager after apply.
+# =============================================================================
+
+# =============================================================================
+# Infrastructure
+# =============================================================================
+
+aws_region       = "us-east-1"
+instance_type    = "t3.medium"   # 2 vCPU / 4 GB — minimum recommended for all services
+key_name         = "my-ec2-keypair"
+allowed_ssh_cidr = "0.0.0.0/0"  # Restrict to your IP: "1.2.3.4/32"
+volume_size_gb   = 40
+
+# =============================================================================
+# Networking / Domain (optional — leave blank for IP-only HTTP access)
+# =============================================================================
+
+domain_name     = ""             # e.g. "app.yourdomain.com"
+route53_zone_id = ""             # e.g. "Z1234567890ABC" — only needed if using Route53
+certbot_email   = ""             # e.g. "you@yourdomain.com" — required when domain_name is set
+
+# =============================================================================
+# Git Repository
+# =============================================================================
+
+git_repo_url = "https://github.com/your-org/RivrQuant.git"
+git_token    = ""   # GitHub personal access token for private repos; leave blank for public
+
+# =============================================================================
+# Application
+# =============================================================================
+
+rivrquant_mode = "Paper"         # Paper | LiveTestnet | LiveProduction
+cors_origins   = ""              # Defaults to "https://<domain_name>" if domain is set
+
+# =============================================================================
+# Database
+# =============================================================================
+
+db_password = "change-me-strong-password"
+
+# =============================================================================
+# QuantConnect
+# =============================================================================
+
+qc_user_id               = "123456"
+qc_api_token             = "your_quantconnect_api_token"
+qc_project_ids           = "12345,67890"   # Comma-separated project IDs
+qc_poll_interval_seconds = 300
+
+# =============================================================================
+# Alpaca (Stocks)
+# =============================================================================
+
+alpaca_api_key    = "your_alpaca_api_key"
+alpaca_api_secret = "your_alpaca_api_secret"
+alpaca_paper      = true
+alpaca_base_url   = "https://paper-api.alpaca.markets"
+# alpaca_base_url = "https://api.alpaca.markets"   # ← uncomment for live trading
+
+# =============================================================================
+# Bybit (Crypto)
+# =============================================================================
+
+bybit_api_key     = "your_bybit_api_key"
+bybit_api_secret  = "your_bybit_api_secret"
+bybit_use_testnet = true
+bybit_testnet_url = "https://api-testnet.bybit.com"
+bybit_live_url    = "https://api.bybit.com"
+
+# =============================================================================
+# Anthropic (AI Analysis)
+# =============================================================================
+
+anthropic_api_key    = "your_anthropic_api_key"
+anthropic_model      = "claude-sonnet-4-20250514"
+anthropic_max_tokens = 4096
+
+# =============================================================================
+# SendGrid (Email Alerts)
+# =============================================================================
+
+sendgrid_api_key       = "your_sendgrid_api_key"
+sendgrid_from_email    = "alerts@rivrquant.com"
+sendgrid_from_name     = "RivrQuant Alerts"
+alert_email_recipients = "you@example.com"    # Comma-separated for multiple
+
+# =============================================================================
+# Twilio (SMS Alerts)
+# =============================================================================
+
+twilio_account_sid   = "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+twilio_auth_token    = "your_twilio_auth_token"
+twilio_from_number   = "+12025550123"
+alert_sms_recipients = "+12025550124"         # Comma-separated for multiple

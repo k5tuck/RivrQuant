@@ -5,12 +5,12 @@ import { formatDate, formatPercent, formatNumber } from "@/lib/formatters";
 import type { RegimeDto } from "@/lib/types";
 
 const regimeColors: Record<string, { bg: string; border: string; text: string; label: string }> = {
-  Trending: { bg: "bg-green-500", border: "border-green-500/30", text: "text-green-500", label: "Trending (Up)" },
+  Trending: { bg: "bg-profit", border: "border-profit/30", text: "text-profit", label: "Trending (Up)" },
   TrendingDown: { bg: "bg-blue-500", border: "border-blue-500/30", text: "text-blue-500", label: "Trending (Down)" },
-  MeanReverting: { bg: "bg-yellow-500", border: "border-yellow-500/30", text: "text-yellow-500", label: "Mean Reverting" },
+  MeanReverting: { bg: "bg-warning", border: "border-warning/30", text: "text-warning", label: "Mean Reverting" },
   HighVolatility: { bg: "bg-orange-500", border: "border-orange-500/30", text: "text-orange-500", label: "High Volatility" },
   LowVolatility: { bg: "bg-zinc-400", border: "border-zinc-400/30", text: "text-zinc-400", label: "Low Volatility" },
-  Crisis: { bg: "bg-red-500", border: "border-red-500/30", text: "text-red-500", label: "Crisis" },
+  Crisis: { bg: "bg-loss", border: "border-loss/30", text: "text-loss", label: "Crisis" },
 };
 
 function getRegimeStyle(regime: string) {
@@ -107,7 +107,7 @@ export default function RegimesPage() {
                       </td>
                       <td className="px-4 py-2.5 text-[hsl(var(--muted-foreground))]">{formatDate(r.startDate)}</td>
                       <td className="px-4 py-2.5 text-[hsl(var(--muted-foreground))]">{formatDate(r.endDate)}</td>
-                      <td className={`px-4 py-2.5 text-right font-medium ${r.returnInRegime >= 0 ? "text-green-500" : "text-red-500"}`}>
+                      <td className={`px-4 py-2.5 text-right font-medium ${r.returnInRegime >= 0 ? "text-profit" : "text-loss"}`}>
                         {formatPercent(r.returnInRegime)}
                       </td>
                       <td className="px-4 py-2.5 text-right font-medium text-[hsl(var(--foreground))]">

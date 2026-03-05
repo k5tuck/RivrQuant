@@ -33,6 +33,7 @@ services:
       - TWILIO_FROM_NUMBER=${TWILIO_FROM_NUMBER}
       - ALERT_SMS_RECIPIENTS=${ALERT_SMS_RECIPIENTS}
       - SIGNALR_ENABLE=true
+      - CORS_ORIGINS=${CORS_ORIGINS}
     depends_on:
       postgres:
         condition: service_healthy
@@ -47,11 +48,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+        - NEXT_PUBLIC_SIGNALR_URL=${NEXT_PUBLIC_SIGNALR_URL}
     ports:
       - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://api:5000
-      - NEXT_PUBLIC_SIGNALR_URL=http://api:5000/hubs/trading
     depends_on:
       - api
     restart: unless-stopped

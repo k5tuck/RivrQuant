@@ -4,31 +4,29 @@ using RivrQuant.Application.DTOs;
 using RivrQuant.Domain.Enums;
 using RivrQuant.Domain.Interfaces;
 using RivrQuant.Domain.Models.Trading;
-using RivrQuant.Infrastructure.Brokers.Alpaca;
-using RivrQuant.Infrastructure.Brokers.Bybit;
 using RivrQuant.Infrastructure.Persistence;
 
 namespace RivrQuant.Application.Services;
 
 /// <summary>
 /// Application service for live trading operations across multiple brokers.
+/// Broker routing is performed via <see cref="IBrokerClientFactory"/> so that
+/// the service is decoupled from concrete broker implementations and strategies
+/// can nominate their own broker.
 /// </summary>
 public sealed class TradingService
 {
-    private readonly AlpacaBrokerClient _alpaca;
-    private readonly BybitBrokerClient _bybit;
+    private readonly IBrokerClientFactory _brokerFactory;
     private readonly RivrQuantDbContext _db;
     private readonly ILogger<TradingService> _logger;
 
     /// <summary>Initializes a new instance of <see cref="TradingService"/>.</summary>
     public TradingService(
-        AlpacaBrokerClient alpaca,
-        BybitBrokerClient bybit,
+        IBrokerClientFactory brokerFactory,
         RivrQuantDbContext db,
         ILogger<TradingService> logger)
     {
-        _alpaca = alpaca;
-        _bybit = bybit;
+        _brokerFactory = brokerFactory;
         _db = db;
         _logger = logger;
     }
@@ -38,24 +36,17 @@ public sealed class TradingService
     {
         var positions = new List<Position>();
 
-        try
+        foreach (var brokerType in Enum.GetValues<BrokerType>())
         {
-            var alpacaPositions = await _alpaca.GetPositionsAsync(ct);
-            positions.AddRange(alpacaPositions);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to fetch Alpaca positions");
-        }
-
-        try
-        {
-            var bybitPositions = await _bybit.GetPositionsAsync(ct);
-            positions.AddRange(bybitPositions);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to fetch Bybit positions");
+            try
+            {
+                var brokerPositions = await _brokerFactory.GetClient(brokerType).GetPositionsAsync(ct);
+                positions.AddRange(brokerPositions);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to fetch {Broker} positions", brokerType);
+            }
         }
 
         return positions;
@@ -68,9 +59,9 @@ public sealed class TradingService
         CancellationToken ct)
     {
         var start = from ?? DateTimeOffset.UtcNow.AddDays(-30);
-        var end = to ?? DateTimeOffset.UtcNow;
+        var end   = to   ?? DateTimeOffset.UtcNow;
 
-        // Fetch from database first (persisted orders)
+        // Fetch from database first (persisted orders).
         var dbOrders = (await _db.Orders
             .Include(o => o.Fills)
             .Where(o => o.CreatedAt >= start && o.CreatedAt <= end)
@@ -81,44 +72,37 @@ public sealed class TradingService
         if (dbOrders.Count > 0)
             return dbOrders;
 
-        // Fall back to broker APIs
+        // Fall back to broker APIs if the DB has no records in range.
         var orders = new List<Order>();
 
-        try
+        foreach (var brokerType in Enum.GetValues<BrokerType>())
         {
-            var alpacaOrders = await _alpaca.GetOrderHistoryAsync(start, end, ct);
-            orders.AddRange(alpacaOrders);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to fetch Alpaca order history");
-        }
-
-        try
-        {
-            var bybitOrders = await _bybit.GetOrderHistoryAsync(start, end, ct);
-            orders.AddRange(bybitOrders);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to fetch Bybit order history");
+            try
+            {
+                var brokerOrders = await _brokerFactory.GetClient(brokerType).GetOrderHistoryAsync(start, end, ct);
+                orders.AddRange(brokerOrders);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to fetch {Broker} order history", brokerType);
+            }
         }
 
         return orders.OrderByDescending(o => o.CreatedAt).ToList();
     }
 
-    /// <summary>Places a new order through the appropriate broker.</summary>
+    /// <summary>Places a new order through the broker specified in the DTO.</summary>
     public async Task<Order> PlaceOrderAsync(PlaceOrderDto dto, CancellationToken ct)
     {
-        var broker = GetBrokerClient(dto.Broker);
+        var broker = _brokerFactory.GetClient(dto.Broker);
         var request = new OrderRequest(
-            Symbol: dto.Symbol,
-            Side: dto.Side,
-            Type: dto.Type,
-            Quantity: dto.Quantity,
-            LimitPrice: dto.LimitPrice,
-            StopPrice: dto.StopPrice,
-            AssetClass: dto.AssetClass);
+            Symbol:      dto.Symbol,
+            Side:        dto.Side,
+            Type:        dto.Type,
+            Quantity:    dto.Quantity,
+            LimitPrice:  dto.LimitPrice,
+            StopPrice:   dto.StopPrice,
+            AssetClass:  dto.AssetClass);
 
         _logger.LogInformation(
             "Placing {Side} {Type} order for {Quantity} {Symbol} on {Broker}",
@@ -126,11 +110,35 @@ public sealed class TradingService
 
         var order = await broker.PlaceOrderAsync(request, ct);
 
-        // Persist the order
         _db.Orders.Add(order);
         await _db.SaveChangesAsync(ct);
 
         _logger.LogInformation("Order placed: {OrderId} (Status: {Status})", order.Id, order.Status);
+        return order;
+    }
+
+    /// <summary>
+    /// Places a new order for a strategy, resolving the target broker from the
+    /// strategy's configured <see cref="Domain.Enums.BrokerType"/> stored in the database.
+    /// </summary>
+    public async Task<Order> PlaceOrderForStrategyAsync(Guid strategyId, OrderRequest request, CancellationToken ct)
+    {
+        var strategy = await _db.Strategies.FindAsync(new object[] { strategyId }, ct)
+            ?? throw new KeyNotFoundException($"Strategy {strategyId} not found.");
+
+        var broker = _brokerFactory.GetClient(strategy.Broker);
+
+        _logger.LogInformation(
+            "Placing {Side} {Type} order for {Quantity} {Symbol} via strategy {StrategyName} on {Broker}",
+            request.Side, request.Type, request.Quantity, request.Symbol, strategy.Name, strategy.Broker);
+
+        var order = await broker.PlaceOrderAsync(request, ct);
+
+        _db.Orders.Add(order);
+        await _db.SaveChangesAsync(ct);
+
+        _logger.LogInformation("Order placed: {OrderId} for strategy {StrategyName} (Status: {Status})",
+            order.Id, strategy.Name, order.Status);
         return order;
     }
 
@@ -140,7 +148,7 @@ public sealed class TradingService
         var dbOrder = await _db.Orders.FindAsync(new object[] { orderId }, ct)
             ?? throw new KeyNotFoundException($"Order {orderId} not found.");
 
-        var broker = GetBrokerClient(dbOrder.Broker);
+        var broker = _brokerFactory.GetClient(dbOrder.Broker);
         var cancelled = await broker.CancelOrderAsync(dbOrder.ExternalOrderId, ct);
 
         dbOrder.Status = OrderStatus.Cancelled;
@@ -156,37 +164,20 @@ public sealed class TradingService
     {
         _logger.LogWarning("KILL SWITCH ACTIVATED - Closing all positions across all brokers");
 
-        var tasks = new List<Task>();
-
-        try
-        {
-            tasks.Add(_alpaca.CloseAllPositionsAsync(ct));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to close Alpaca positions");
-        }
-
-        try
-        {
-            tasks.Add(_bybit.CloseAllPositionsAsync(ct));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to close Bybit positions");
-        }
+        var tasks = Enum.GetValues<BrokerType>()
+            .Select(async brokerType =>
+            {
+                try
+                {
+                    await _brokerFactory.GetClient(brokerType).CloseAllPositionsAsync(ct);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    _logger.LogError(ex, "Failed to close {Broker} positions", brokerType);
+                }
+            });
 
         await Task.WhenAll(tasks);
         _logger.LogWarning("Kill switch complete - all position close orders submitted");
-    }
-
-    private IBrokerClient GetBrokerClient(BrokerType broker)
-    {
-        return broker switch
-        {
-            BrokerType.Alpaca => _alpaca,
-            BrokerType.Bybit => _bybit,
-            _ => throw new ArgumentOutOfRangeException(nameof(broker), $"Unsupported broker: {broker}")
-        };
     }
 }

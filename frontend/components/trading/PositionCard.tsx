@@ -15,7 +15,7 @@ export default function PositionCard({ position }: PositionCardProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-base font-bold text-[hsl(var(--foreground))]">{position.symbol}</span>
-          <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${position.side === "Long" ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"}`}>
+          <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${position.side === "Long" ? "bg-profit/10 text-profit" : "bg-loss/10 text-loss"}`}>
             {position.side}
           </span>
         </div>
@@ -38,7 +38,7 @@ export default function PositionCard({ position }: PositionCardProps) {
         </div>
         <div>
           <p className="text-xs text-[hsl(var(--muted-foreground))]">Unrealized P&L</p>
-          <p className={`font-medium ${isProfit ? "text-green-500" : "text-red-500"}`}>
+          <p className={`font-medium ${isProfit ? "text-profit" : "text-loss"}`}>
             {isProfit ? "+" : ""}{formatCurrency(position.unrealizedPnl)}
             <span className="ml-1 text-xs">({isProfit ? "+" : ""}{formatPercent(position.pnlPercent)})</span>
           </p>
